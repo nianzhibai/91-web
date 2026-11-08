@@ -1,0 +1,6 @@
+{
+  "formatVersion": 1,
+  "name": "91-web",
+  "apiMin": "1.0.0",
+  "apiMaxExclusive": "2.0.0"
+}
