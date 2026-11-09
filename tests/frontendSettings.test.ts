@@ -1,79 +1,50 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createElement } from "react";
-import { act, fireEvent, render, within } from "./helpers/dom";
+import { act, fireEvent, render } from "./helpers/dom";
 import { FrontendSettingsSection } from "../src/admin/settings/FrontendSettingsSection";
 
-test("installing a frontend does not activate it and a rejected switch keeps the page usable", async t => {
-  t.mock.method(window, "scrollTo", () => {});
-  const release = { formatVersion: 1, name: "community-web", version: "1.2.0", apiMin: "1.0.0", apiMaxExclusive: "2.0.0", sha256: "digest", contentHash: "tree", installedAt: "2026-01-01T00:00:00Z" };
-  let installed = false;
-  const writes: { path: string; body: unknown }[] = [];
+const props = {
+  repository: "https://github.com/community/web",
+  configurationSaved: true,
+  disabled: false,
+  onRepositoryChange() {},
+};
+
+test("frontend settings expose one install-and-activate action without version management", async t => {
+  const writes: string[] = [];
   t.mock.method(globalThis, "fetch", async (input: string, init?: RequestInit) => {
-    if (!init?.method || init.method === "GET") return Response.json({ active: "", installed: installed ? [release] : [] });
-    writes.push({ path: input, body: JSON.parse(String(init.body)) });
-    if (input.endsWith("/install")) { installed = true; return Response.json(release, { status: 201 }); }
-    return Response.json({ error: "该前端与当前 API 不兼容", code: "conflict" }, { status: 409 });
+    if (init?.method === "POST") {
+      writes.push(input);
+      assert.equal(init.body, undefined);
+      return Response.json({ error: "最新发布与当前 API 不兼容" }, { status: 400 });
+    }
+    return Response.json({ active: "current@1.0.0", installed: [{ name: "old-web", version: "0.1.0" }] });
   });
   let view!: ReturnType<typeof render>;
-  await act(async () => { view = render(createElement(FrontendSettingsSection)); });
-  fireEvent.change(view.getByLabelText("前端仓库"), { target: { value: "community/web" } });
-  fireEvent.change(view.getByLabelText("发布版本"), { target: { value: "v1.2.0" } });
-  await act(async () => { fireEvent.click(view.getByRole("button", { name: "安装版本" })); });
-  assert.deepEqual(writes, [{ path: "/admin/api/frontend/install", body: { repository: "community/web", version: "v1.2.0" } }]);
-  fireEvent.click(view.getByRole("button", { name: "启用", exact: true }));
-  assert.equal(writes.length, 1);
-  await act(async () => { fireEvent.click(view.getByRole("button", { name: "切换并打开首页" })); });
-  assert.deepEqual(writes[1], { path: "/admin/api/frontend/active", body: { id: "community-web@1.2.0" } });
-  const dialog = view.getByRole("dialog");
-  assert.match(within(dialog).getByRole("alert").textContent || "", /该前端与当前 API 不兼容/);
-  assert.equal(within(dialog).getByRole("button", { name: "切换并打开首页" }).hasAttribute("disabled"), false);
-  fireEvent.click(within(dialog).getByRole("button", { name: "取消" }));
-  assert.equal(view.queryByRole("dialog"), null);
+  await act(async () => { view = render(createElement(FrontendSettingsSection, props)); });
+  assert.equal((view.getByLabelText("前端仓库") as HTMLInputElement).value, props.repository);
+  assert.ok(view.getByText("current@1.0.0"));
+  assert.equal(view.queryByText("old-web"), null);
+  assert.equal(view.queryByLabelText("发布版本"), null);
+  assert.deepEqual(view.getAllByRole("button").map(button => button.textContent), ["安装并启用"]);
+  await act(async () => { fireEvent.click(view.getByRole("button", { name: "安装并启用" })); });
+  assert.deepEqual(writes, ["/admin/api/frontend/install"]);
+  assert.match(view.getByRole("alert").textContent || "", /最新发布与当前 API 不兼容/);
+  assert.ok(view.getByText("current@1.0.0"));
 });
 
-test("a delayed initial response cannot hide a newly installed frontend", async t => {
-  const release = { name: "community-web", version: "1.2.0" };
-  let resolveInitial!: (response: Response) => void;
-  let reads = 0;
-  t.mock.method(globalThis, "fetch", async (_input: string, init?: RequestInit) => {
-    if (init?.method === "POST") return Response.json(release, { status: 201 });
-    if (++reads === 1) return new Promise<Response>(resolve => { resolveInitial = resolve; });
-    return Response.json({ active: "", installed: [release] });
-  });
+test("installation is blocked until a valid repository has been saved", async t => {
+  t.mock.method(globalThis, "fetch", async () => Response.json({ active: "", installed: [] }));
   let view!: ReturnType<typeof render>;
-  await act(async () => { view = render(createElement(FrontendSettingsSection)); });
-  fireEvent.change(view.getByLabelText("发布版本"), { target: { value: "v1.2.0" } });
-  await act(async () => { fireEvent.submit(view.getByRole("form", { name: "安装前端版本" })); });
-  assert.ok(view.getByRole("button", { name: "启用", exact: true }));
-  await act(async () => { resolveInitial(Response.json({ active: "", installed: [] })); });
-  assert.ok(view.getByRole("button", { name: "启用", exact: true }));
-  assert.equal(view.queryByRole("alert"), null);
+  await act(async () => { view = render(createElement(FrontendSettingsSection, { ...props, configurationSaved: false })); });
+  assert.equal(view.getByRole("button", { name: "安装并启用" }).hasAttribute("disabled"), true);
+  view.rerender(createElement(FrontendSettingsSection, { ...props, repository: "community/web" }));
+  assert.equal(view.getByLabelText("前端仓库").getAttribute("aria-invalid"), "true");
+  assert.equal(view.getByRole("button", { name: "安装并启用" }).hasAttribute("disabled"), true);
 });
 
-test("a failed post-install refresh preserves success and retrying only reads status", async t => {
-  const release = { name: "community-web", version: "1.2.0" };
-  let reads = 0;
-  let writes = 0;
-  t.mock.method(globalThis, "fetch", async (_input: string, init?: RequestInit) => {
-    if (init?.method === "POST") { writes++; return Response.json(release, { status: 201 }); }
-    reads++;
-    if (reads === 2) return Response.json({ error: "版本列表暂时不可用" }, { status: 503 });
-    return Response.json({ active: "", installed: reads > 2 ? [release] : [] });
-  });
-  let view!: ReturnType<typeof render>;
-  await act(async () => { view = render(createElement(FrontendSettingsSection)); });
-  fireEvent.change(view.getByLabelText("发布版本"), { target: { value: "v1.2.0" } });
-  await act(async () => { fireEvent.submit(view.getByRole("form", { name: "安装前端版本" })); });
-  assert.match(view.getByRole("status").textContent || "", /已安装/);
-  assert.match(view.getByRole("alert").textContent || "", /版本列表暂时不可用/);
-  await act(async () => { fireEvent.click(view.getByRole("button", { name: "刷新", exact: true })); });
-  assert.equal(writes, 1);
-  assert.ok(view.getByRole("button", { name: "启用", exact: true }));
-  assert.equal(view.queryByRole("alert"), null);
-});
-
-test("repeated submits send one installation request", async t => {
+test("repeated clicks send one installation request", async t => {
   let complete!: (response: Response) => void;
   let writes = 0;
   t.mock.method(globalThis, "fetch", async (_input: string, init?: RequestInit) => {
@@ -84,13 +55,101 @@ test("repeated submits send one installation request", async t => {
     return Response.json({ active: "", installed: [] });
   });
   let view!: ReturnType<typeof render>;
-  await act(async () => { view = render(createElement(FrontendSettingsSection)); });
-  fireEvent.change(view.getByLabelText("发布版本"), { target: { value: "v1.2.0" } });
+  await act(async () => { view = render(createElement(FrontendSettingsSection, props)); });
   await act(async () => {
-    const form = view.getByRole("form", { name: "安装前端版本" });
-    fireEvent.submit(form);
-    fireEvent.submit(form);
+    const button = view.getByRole("button", { name: "安装并启用" });
+    fireEvent.click(button);
+    fireEvent.click(button);
   });
   assert.equal(writes, 1);
-  await act(async () => { complete(Response.json({ name: "community-web", version: "1.2.0" }, { status: 201 })); });
+  await act(async () => { complete(Response.json({ error: "下载失败" }, { status: 502 })); });
+  assert.equal(view.getByRole("button", { name: "安装并启用" }).hasAttribute("disabled"), false);
+});
+
+const current = { name: "community-web", version: "1.2.0", repository: "Community/Web" };
+const currentStatus = { active: "community-web@1.2.0", current, installed: [] };
+
+test("an active repository checks for updates and installs only after a second click", async t => {
+  const calls: string[] = [];
+  t.mock.method(globalThis, "fetch", async (input: string, init?: RequestInit) => {
+    calls.push(`${init?.method || "GET"} ${input}`);
+    if (input.endsWith("/update")) return Response.json({ repository: props.repository, current, latestVersion: "1.10.0", updateAvailable: true });
+    if (input.endsWith("/install")) return Response.json({ error: "下载失败" }, { status: 502 });
+    return Response.json(currentStatus);
+  });
+  let view!: ReturnType<typeof render>;
+  await act(async () => { view = render(createElement(FrontendSettingsSection, props)); });
+  assert.ok(view.getByText("community-web 1.2.0"));
+  assert.ok(view.getByRole("button", { name: "检查更新" }));
+  await act(async () => { fireEvent.click(view.getByRole("button", { name: "检查更新" })); });
+  assert.deepEqual(calls, ["GET /admin/api/frontend", "GET /admin/api/frontend/update"]);
+  assert.match(view.getByRole("status").textContent || "", /发现新版本 1.10.0/);
+  await act(async () => { fireEvent.click(view.getByRole("button", { name: "更新并启用" })); });
+  assert.equal(calls.at(-1), "POST /admin/api/frontend/install");
+  assert.match(view.getByRole("alert").textContent || "", /下载失败/);
+  assert.ok(view.getByRole("button", { name: "检查更新" }));
+  assert.ok(view.getByText("community-web 1.2.0"));
+});
+
+test("no update shows current feedback and keeps checking available after revisiting", async t => {
+  let checks = 0;
+  t.mock.method(globalThis, "fetch", async (input: string) => {
+    if (input.endsWith("/update")) { checks++; return Response.json({ repository: props.repository, current, latestVersion: "1.2.0", updateAvailable: false }); }
+    return Response.json(currentStatus);
+  });
+  let view!: ReturnType<typeof render>;
+  await act(async () => { view = render(createElement(FrontendSettingsSection, { ...props, repository: "https://github.com/community/web.git/" })); });
+  await act(async () => { fireEvent.click(view.getByRole("button", { name: "检查更新" })); });
+  assert.equal(view.getByRole("status").textContent, "已是最新版本");
+  assert.ok(view.getByRole("button", { name: "检查更新" }));
+  assert.equal(view.queryByRole("button", { name: "安装并启用" }), null);
+  view.unmount();
+  await act(async () => { view = render(createElement(FrontendSettingsSection, props)); });
+  assert.ok(view.getByRole("button", { name: "检查更新" }));
+  assert.equal(view.queryByRole("status"), null);
+  assert.equal(checks, 1);
+});
+
+test("failed checks never report latest and can be retried", async t => {
+  t.mock.method(globalThis, "fetch", async (input: string) => input.endsWith("/update")
+    ? Response.json({ error: "GitHub 暂时不可用" }, { status: 502 }) : Response.json(currentStatus));
+  let view!: ReturnType<typeof render>;
+  await act(async () => { view = render(createElement(FrontendSettingsSection, props)); });
+  await act(async () => { fireEvent.click(view.getByRole("button", { name: "检查更新" })); });
+  assert.match(view.getByRole("alert").textContent || "", /GitHub 暂时不可用/);
+  assert.equal(view.queryByRole("status"), null);
+  assert.equal(view.getByRole("button", { name: "检查更新" }).hasAttribute("disabled"), false);
+});
+
+test("changing repositories discards a pending check and later uses install", async t => {
+  let complete!: (response: Response) => void;
+  let checks = 0;
+  t.mock.method(globalThis, "fetch", async (input: string) => {
+    if (input.endsWith("/update")) { checks++; return new Promise<Response>(resolve => { complete = resolve; }); }
+    return Response.json(currentStatus);
+  });
+  let view!: ReturnType<typeof render>;
+  await act(async () => { view = render(createElement(FrontendSettingsSection, props)); });
+  await act(async () => {
+    const button = view.getByRole("button", { name: "检查更新" });
+    fireEvent.click(button); fireEvent.click(button);
+  });
+  assert.equal(checks, 1);
+  assert.equal(view.getByRole("button", { name: "检查中…" }).hasAttribute("disabled"), true);
+  view.rerender(createElement(FrontendSettingsSection, { ...props, repository: "https://github.com/other/web" }));
+  await act(async () => { complete(Response.json({ repository: props.repository, current, latestVersion: "1.3.0", updateAvailable: true })); });
+  assert.equal(view.queryByRole("status"), null);
+  assert.ok(view.getByRole("button", { name: "安装并启用" }));
+  view.rerender(createElement(FrontendSettingsSection, props));
+  assert.ok(view.getByRole("button", { name: "检查更新" }));
+});
+
+test("status must be loaded before installation can be offered", async t => {
+  let complete!: (response: Response) => void;
+  t.mock.method(globalThis, "fetch", async () => new Promise<Response>(resolve => { complete = resolve; }));
+  let view!: ReturnType<typeof render>;
+  await act(async () => { view = render(createElement(FrontendSettingsSection, props)); });
+  assert.equal(view.getByRole("button", { name: "加载中…" }).hasAttribute("disabled"), true);
+  await act(async () => { complete(Response.json(currentStatus)); });
+  assert.ok(view.getByRole("button", { name: "检查更新" }));
 });

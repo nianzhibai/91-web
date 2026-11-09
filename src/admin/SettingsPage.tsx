@@ -39,6 +39,7 @@ import {
   applyVisualFields,
   changedVisualFields,
   isValidStartTime,
+  isValidFrontendRepository,
   isValidTimezone,
   parseConfig,
   type SettingsDraft,
@@ -128,7 +129,7 @@ const SECTION_META: Array<{
     title: "Telegram",
     icon: TelegramIcon,
   },
-  { id: "config-frontend", title: "前端版本", icon: Monitor },
+  { id: "config-frontend", title: "前端配置", icon: Monitor },
 ];
 
 type ConfigPageMetaProps = {
@@ -216,7 +217,6 @@ export function SettingsPage() {
   const activeSection = SECTION_META.find(
     ({ id }) => id === `config-${searchParams.get("section")}`
   )?.id ?? "config-automation";
-  const frontendSelected = activeSection === "config-frontend";
   const telegramSelected = activeTab === "visual" && activeSection === "config-telegram";
   const [sourceError, setSourceError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -247,6 +247,7 @@ export function SettingsPage() {
     (sourceTouched ? workingYAML !== loaded.content : visualDirtyFields.size > 0);
   const dirtyRef = useRef(dirty);
   dirtyRef.current = dirty;
+  const frontendRepositoryValid = isValidFrontendRepository(draft.frontendRepository);
   const timeValid = isValidStartTime(draft.nightlyStartTime);
   const timezoneValid = isValidTimezone(draft.nightlyTimezone);
   const generationConcurrencyValid = GENERATION_FIELDS.every(
@@ -262,6 +263,7 @@ export function SettingsPage() {
   const scheduleControlsDisabled = controlsDisabled || draft.nightlyDisabled;
   const hasConfigError =
     Boolean(sourceError) ||
+    !frontendRepositoryValid ||
     !timeValid ||
     !timezoneValid ||
     !generationConcurrencyValid;
@@ -326,16 +328,15 @@ export function SettingsPage() {
   }
 
   useEffect(() => {
-    if (!frontendSelected && !loaded) void load();
-  }, [frontendSelected]);
+    void load();
+  }, []);
 
   useAdminRouteRevalidation(() => {
-    if (frontendSelected) return;
     if (!dirty) void load(true);
   });
 
   useEffect(() => {
-    if (frontendSelected || loading) return;
+    if (loading) return;
 
     const preload = () => {
       void preloadConfigSourceEditor().catch(() => undefined);
@@ -347,7 +348,7 @@ export function SettingsPage() {
 
     const timeoutID = window.setTimeout(preload, 250);
     return () => window.clearTimeout(timeoutID);
-  }, [loading, frontendSelected]);
+  }, [loading]);
 
   useEffect(() => {
     if (!dirty) return;
@@ -370,6 +371,7 @@ export function SettingsPage() {
     if (
       !loaded ||
       !dirty ||
+      !frontendRepositoryValid ||
       !timeValid ||
       !timezoneValid ||
       !generationConcurrencyValid ||
@@ -523,19 +525,6 @@ export function SettingsPage() {
     } catch (error) {
       show(error instanceof Error ? error.message : "更新配置失败", "error");
     }
-  }
-
-  // Frontend releases have their own API and form; YAML loading and validation
-  // cannot block this panel. Keep the editor state here to preserve unsaved drafts.
-  if (frontendSelected) {
-    return (
-      <>
-        <div ref={floatingActionPageRef} className="admin-page admin-config-page">
-          <SettingsNavigation activeSection={activeSection} setActiveSection={setActiveSection} />
-          <FrontendSettingsSection />
-        </div>
-      </>
-    );
   }
 
   if (!loading && (loadError || !loaded)) {
@@ -725,7 +714,7 @@ export function SettingsPage() {
                   index="02"
                   icon={<Film size={16} />}
                   title="媒体生成"
-                  description="控制视频资源生成的并发数，请根据服务器性能和网盘API风控调整，如果性能允许推荐 1-3-1"
+                  description="控制视频资源生成的并发数，请根据服务器性能和网盘 API 风控调整，如果性能允许推荐 1-3-1"
                 >
                   {GENERATION_FIELDS.map(({ field, label }) => (
                     <SettingsRow
@@ -792,6 +781,14 @@ export function SettingsPage() {
                   />
                 </SettingsSection>
               )}
+              {activeSection === "config-frontend" && (
+                <FrontendSettingsSection
+                  repository={draft.frontendRepository}
+                  configurationSaved={!dirty}
+                  disabled={controlsDisabled}
+                  onRepositoryChange={(value) => updateVisualField("frontendRepository", value)}
+                />
+              )}
               <TelegramSettingsSection active={telegramSelected} disabled={controlsDisabled} draft={draft} onChange={updateVisualField} />
             </form>
           </div>
@@ -830,6 +827,7 @@ export function SettingsPage() {
             disabled={
               controlsDisabled ||
               !dirty ||
+              !frontendRepositoryValid ||
               !timeValid ||
               !timezoneValid ||
               !generationConcurrencyValid ||

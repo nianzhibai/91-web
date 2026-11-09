@@ -15,6 +15,7 @@ import {
 } from "yaml";
 
 export type SettingsDraft = TelegramDraft & {
+  frontendRepository: string;
   useGPU: boolean;
   previewEnabled: boolean;
   nightlyDisabled: boolean;
@@ -29,6 +30,7 @@ export type VisualField = keyof SettingsDraft;
 
 export const DEFAULT_DRAFT: SettingsDraft = {
   ...TELEGRAM_DEFAULTS,
+  frontendRepository: "https://github.com/nianzhibai/91-web",
   useGPU: false,
   previewEnabled: true,
   nightlyDisabled: false,
@@ -54,6 +56,10 @@ type SourceEdit = {
 type RangedNode = {
   range?: Range | null;
 };
+
+export function isValidFrontendRepository(value: string) {
+  return /^https:\/\/github\.com\/[A-Za-z0-9][A-Za-z0-9_.-]*\/[A-Za-z0-9][A-Za-z0-9_.-]*\/?$/.test(value);
+}
 
 export function isValidStartTime(value: string) {
   if (!/^\d{2}:\d{2}$/.test(value)) return false;
@@ -87,6 +93,14 @@ export function configDocument(source: string) {
 }
 
 function draftFromDocument(document: ReturnType<typeof configDocument>): SettingsDraft {
+  const frontendNode = document.get("frontend", true);
+  if (frontendNode != null && !isMap(frontendNode) && !(isScalar(frontendNode) && frontendNode.value === null)) {
+    throw new Error("frontend 必须是映射对象");
+  }
+  const frontendRepository = document.getIn(["frontend", "repository"]) ?? DEFAULT_DRAFT.frontendRepository;
+  if (typeof frontendRepository !== "string" || !isValidFrontendRepository(frontendRepository)) {
+    throw new Error("frontend.repository 必须是完整的 GitHub 仓库链接，例如 https://github.com/owner/name");
+  }
   const nightlyNode = document.get("nightly", true);
   if (
     nightlyNode !== undefined &&
@@ -184,6 +198,7 @@ function draftFromDocument(document: ReturnType<typeof configDocument>): Setting
 
   return {
     ...telegramDraftFromDocument(document),
+    frontendRepository,
     useGPU,
     previewEnabled,
     nightlyDisabled,
@@ -796,43 +811,43 @@ function integerSettingEdits(
 }
 
 // Edit only the selected value so comments and unrelated YAML remain intact.
-function telegramSettingEdits(
- source: string, document: ReturnType<typeof configDocument>, key: string,
+function sectionSettingEdits(
+ source: string, document: ReturnType<typeof configDocument>, sectionName: string, key: string,
  value: string | number | boolean | number[]
 ): SourceEdit[] {
  const root = isMap(document.contents) ? document.contents as ParsedMap : null;
- const sectionPair = root ? findPair(root, "telegram") : undefined;
+ const sectionPair = root ? findPair(root, sectionName) : undefined;
  const rendered = JSON.stringify(value);
  const entry = `${key}: ${rendered}`;
  if (!sectionPair) {
-  if (root && isFlowMap(root)) return [insertFlowMapEntry(source, root, `telegram: { ${entry} }`)];
+  if (root && isFlowMap(root)) return [insertFlowMapEntry(source, root, `${sectionName}: { ${entry} }`)];
   const position = root?.range?.[2] ?? document.range?.[1] ?? source.length;
-  return [insertLinesAtBoundary(source, position, ["telegram:", `  ${entry}`])];
+  return [insertLinesAtBoundary(source, position, [`${sectionName}:`, `  ${entry}`])];
  }
  const node = sectionPair.value;
  if (!node || (isScalar(node) && node.value === null && (!node.range || node.range[0] === node.range[1]))) {
-  return [insertAfterEmptyMapKey(source, sectionPair, entry, "telegram")];
+  return [insertAfterEmptyMapKey(source, sectionPair, entry, sectionName)];
  }
  if (isScalar(node) && node.value === null) {
-  const range = requiredRange(node, "telegram");
+  const range = requiredRange(node, sectionName);
   return [{start: range[0], end: range[1], text: `{ ${entry} }`}];
  }
- if (!isMap(node)) throw new Error("telegram 必须是映射对象");
+ if (!isMap(node)) throw new Error(`${sectionName} 必须是映射对象`);
  const section = node as ParsedMap;
  const pair = findPair(section, key);
- if (!pair) return [isFlowMap(section) ? insertFlowMapEntry(source, section, entry) : insertBlockMapEntry(source, section, entry, "telegram")];
- if (typeof value === "string") return [replaceStringPairValue(source, pair, value, `telegram.${key}`)];
- if (typeof value === "boolean") return [replaceBooleanPairValue(source, pair, value, `telegram.${key}`)];
- if (typeof value === "number") return [replaceIntegerPairValue(source, pair, value, `telegram.${key}`)];
+ if (!pair) return [isFlowMap(section) ? insertFlowMapEntry(source, section, entry) : insertBlockMapEntry(source, section, entry, sectionName)];
+ if (typeof value === "string") return [replaceStringPairValue(source, pair, value, `${sectionName}.${key}`)];
+ if (typeof value === "boolean") return [replaceBooleanPairValue(source, pair, value, `${sectionName}.${key}`)];
+ if (typeof value === "number") return [replaceIntegerPairValue(source, pair, value, `${sectionName}.${key}`)];
  if (pair.value?.range && pair.value.range[0] < pair.value.range[1]) {
   const range = pair.value.range;
   // Block sequences include their final newline in the value range.
   const suffix = source.slice(range[0], range[1]).endsWith("\n") ? lineEnding(source) : "";
   return [{start: range[0], end: range[1], text: rendered + suffix}];
  }
- const keyRange = requiredRange(pair.key, `telegram.${key}`);
+ const keyRange = requiredRange(pair.key, `${sectionName}.${key}`);
  const colon = source.indexOf(":", keyRange[1]);
- if (colon < 0) throw new Error(`无法定位 telegram.${key}`);
+ if (colon < 0) throw new Error(`无法定位 ${sectionName}.${key}`);
  return [{start: colon + 1, end: colon + 1, text: ` ${rendered}`}];
 }
 
@@ -920,10 +935,15 @@ export function applyVisualFields(
       );
     }
   }
+  if (fields.has("frontendRepository")) {
+    updated = applySourceEdits(updated, sectionSettingEdits(
+      updated, configDocument(updated), "frontend", "repository", draft.frontendRepository
+    ));
+  }
   for (const field of TELEGRAM_FIELDS) {
     if (!fields.has(field)) continue;
-    updated = applySourceEdits(updated, telegramSettingEdits(
-      updated, configDocument(updated), TELEGRAM_YAML_KEYS[field], telegramFieldValue(draft, field)
+    updated = applySourceEdits(updated, sectionSettingEdits(
+      updated, configDocument(updated), "telegram", TELEGRAM_YAML_KEYS[field], telegramFieldValue(draft, field)
     ));
   }
 
@@ -935,6 +955,7 @@ export function applyVisualFields(
 
 export function changedVisualFields(saved: SettingsDraft, draft: SettingsDraft) {
   const fields = new Set<VisualField>();
+  if (saved.frontendRepository !== draft.frontendRepository) fields.add("frontendRepository");
   if (saved.useGPU !== draft.useGPU) {
     fields.add("useGPU");
   }

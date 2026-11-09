@@ -1,27 +1,54 @@
-.frontend-settings__install,
-.frontend-settings__actions {
+.frontend-settings__repository {
+  display: grid;
+  gap: 7px;
+  width: 320px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.frontend-settings__repository input {
+  width: 100%;
+  min-width: 0;
+}
+
+.frontend-settings__current {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  justify-content: flex-end;
   flex-wrap: wrap;
+  gap: 12px;
+  min-width: 0;
 }
-.frontend-settings__install input { width: 160px; min-width: 0; }
-.frontend-settings__versions { display: grid; gap: var(--space-3); }
-.frontend-settings__version {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-4);
-  border-radius: var(--radius-md);
-  background: var(--bg-sunken);
+
+.frontend-settings__identity {
+  color: var(--text-muted);
+  font-size: 13px;
+  overflow-wrap: anywhere;
 }
-.frontend-settings__version strong { overflow-wrap: anywhere; }
-.frontend-settings__version > div { min-width: 0; }
-.frontend-settings__version > button { flex-shrink: 0; }
-.frontend-settings__version strong span { font-weight: 400; color: var(--text-muted); }
-.frontend-settings__version p { margin: var(--space-1) 0 0; color: var(--text-muted); font-size: 12px; overflow-wrap: anywhere; }
-.frontend-settings__message { margin: 0; color: var(--text-default); overflow-wrap: anywhere; }
-.frontend-settings__message.is-error { color: var(--danger); }
-.frontend-settings__actions { padding-top: var(--space-3); }
-.frontend-settings__form { display: grid; gap: var(--space-4); }
+
+.frontend-settings__current button {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.frontend-settings__message {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.frontend-settings__message.is-error {
+  color: var(--danger);
+}
+
+@media (max-width: 640px) {
+  .frontend-settings__repository {
+    width: 100%;
+  }
+
+  .frontend-settings__current {
+    justify-content: flex-start;
+  }
+}
