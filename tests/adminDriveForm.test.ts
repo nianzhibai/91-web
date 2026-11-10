@@ -898,13 +898,14 @@ test("drive list actions use ordinary text buttons in the requested positions", 
     adminCss,
     /\.admin-create-fab\s*\{[^}]*position\s*:\s*fixed[^}]*right\s*:\s*var\(--space-7\)[^}]*bottom\s*:\s*var\(--space-5\)[^}]*width\s*:\s*fit-content[^}]*min-width\s*:\s*0[^}]*min-height\s*:\s*44px[^}]*box-shadow\s*:\s*var\(--shadow-lg\)/s
   );
+  // The floating create action is the page's primary action.
   assert.match(
     adminCss,
-    /\.admin-btn\.admin-create-fab\s*\{[^}]*background\s*:\s*transparent/s
+    /\.admin-btn\.admin-create-fab\s*\{[^}]*background\s*:\s*var\(--accent\);[^}]*color\s*:\s*var\(--text-on-accent\)/s
   );
   assert.match(
     adminCss,
-    /\.admin-btn\.admin-create-fab:hover:not\(:disabled\)\s*\{[^}]*background\s*:\s*transparent/s
+    /\.admin-btn\.admin-create-fab:hover:not\(:disabled\)\s*\{[^}]*background\s*:\s*var\(--accent-hover\)/s
   );
   assert.match(
     adminCss,

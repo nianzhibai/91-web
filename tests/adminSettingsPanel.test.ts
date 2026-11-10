@@ -289,11 +289,11 @@ test("configuration panel follows the CLIProxy configuration workspace UI", () =
   );
   assert.match(
     adminCss,
-    /\.admin-config-mode-switch\s*\{[^}]*display:\s*inline-flex;[^}]*border-radius:\s*var\(--radius-pill\);[^}]*background:\s*var\(--bg-surface\);/s
+    /\.admin-config-mode-switch\s*\{[^}]*display:\s*inline-flex;[^}]*border-radius:\s*var\(--radius-pill\);[^}]*background:\s*var\(--bg-hover\);/s
   );
   assert.match(
     adminCss,
-    /\.admin-config-mode-switch button\.is-active\s*\{[^}]*background:\s*var\(--bg-page\);[^}]*box-shadow:\s*var\(--shadow-sm\);/s
+    /\.admin-config-mode-switch button\.is-active\s*\{[^}]*background:\s*var\(--accent\);[^}]*color:\s*var\(--text-on-accent\);[^}]*box-shadow:\s*var\(--shadow-sm\);/s
   );
   assert.match(
     adminCss,
@@ -328,22 +328,23 @@ test("configuration panel follows the CLIProxy configuration workspace UI", () =
   );
   assert.match(
     adminCss,
-    /\.admin-config-section-nav\s*\{[^}]*display:\s*flex;[^}]*overflow-x:\s*auto;[^}]*overflow-y:\s*hidden;[^}]*border-bottom:\s*1px solid var\(--border-default\)/s
+    /\.admin-config-section-nav\s*\{[^}]*display:\s*flex;[^}]*overflow-x:\s*auto;[^}]*overflow-y:\s*hidden;[^}]*border-radius:\s*var\(--radius-pill\);[^}]*background:\s*var\(--bg-hover\);/s
+  );
+  // Section tabs share the console's segmented pill rather than an underline.
+  assert.match(
+    adminCss,
+    /\.admin-config-section-nav button::after\s*\{[^}]*content:\s*none;/s
   );
   assert.match(
     adminCss,
-    /\.admin-config-section-nav button::after\s*\{[^}]*bottom:\s*0;[^}]*height:\s*2px;[^}]*background:\s*transparent;/s
-  );
-  assert.match(
-    adminCss,
-    /\.admin-config-section-nav button\.is-active::after\s*\{[^}]*background:\s*var\(--text-strong\);/s
+    /\.admin-config-section-nav button\.is-active\s*\{[^}]*background:\s*var\(--accent\);[^}]*color:\s*var\(--text-on-accent\);/s
   );
   assert.doesNotMatch(adminCss, /\.admin-config-section-nav\s*\{[^}]*grid-template-columns:/s);
   assert.doesNotMatch(pageSource, /admin-config-section-nav__index/);
   assert.match(adminCss, /\.admin-config-sections\s*\{[^}]*display:\s*block/s);
   assert.match(
     adminCss,
-    /\.admin-config-section\s*\{[^}]*border-radius:\s*8px;[^}]*background:\s*var\(--bg-surface\);/s
+    /\.admin-config-section\s*\{[^}]*border-radius:\s*var\(--radius-lg\);[^}]*background:\s*var\(--bg-surface\);/s
   );
   assert.match(
     adminCss,

@@ -70,9 +70,11 @@ function toCount(value: number): number {
 export function virtualGridColumns(input: {
   mobile: boolean;
   tablet: boolean;
+  wide?: boolean;
 }): number {
   if (input.mobile) return 1;
   if (input.tablet) return 3;
+  if (input.wide) return 5;
   return 4;
 }
 

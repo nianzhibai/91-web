@@ -28,16 +28,19 @@ test("video skeleton mirrors thumbnail, title, and metadata structure", () => {
   const thumb = ruleBody(videoCardCss, ".skeleton-card__thumb");
 
   assert.match(skeleton, /--skeleton-shimmer-base\s*:/);
-  assert.match(thumb, /height\s*:\s*135px/);
+  // Skeleton geometry follows the card: a 16:9 rounded thumbnail on no frame.
+  assert.match(thumb, /aspect-ratio\s*:\s*16 \/ 9/);
+  assert.match(thumb, /border-radius\s*:\s*var\(--radius-md\)/);
+  assert.match(ruleBody(videoCardCss, ".thumb-frame"), /aspect-ratio\s*:\s*16 \/ 9/);
   assert.match(
     videoCardCss,
-    /\.skeleton-card__title\s*\{\s*margin-top:[^}]*width:\s*100%;[^}]*height:\s*1lh;[^}]*border-radius:\s*var\(--radius-xs\)/s
+    /\.skeleton-card__title\s*\{\s*margin-top:[^}]*width:\s*92%;[^}]*height:\s*1lh;[^}]*border-radius:\s*var\(--radius-xs\)/s
   );
   assert.match(
     videoCardCss,
-    /\.skeleton-card__meta\s*\{\s*margin-top:\s*6px;[^}]*width:\s*100%;[^}]*height:\s*14px;[^}]*border-radius:\s*var\(--radius-xs\)/s
+    /\.skeleton-card__meta\s*\{\s*margin-top:\s*8px;[^}]*width:\s*64%;[^}]*height:\s*12px;[^}]*border-radius:\s*var\(--radius-xs\)/s
   );
-  assert.match(skeleton, /--skeleton-card-bg\s*:\s*var\(--bg-surface\)/);
+  assert.match(skeleton, /background\s*:\s*transparent/);
   assert.match(skeleton, /--skeleton-shimmer-base\s*:\s*var\(--bg-skeleton\)/);
   assert.match(skeleton, /--skeleton-shimmer-highlight\s*:\s*var\(--bg-elevated\)/);
   assert.doesNotMatch(videoCardCss, /is-compact/);

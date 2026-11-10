@@ -470,7 +470,7 @@ function VideoDetailContent({ id }: { id?: string }) {
 
   if (!detail) {
     return (
-      <AppShell mobileAutoHideNav>
+      <AppShell mobileAutoHideNav navMode="compact">
         <div className={detailError ? "vd-page" : "vd-page vd-page--empty"}>
           <div className="container vd-page__inner">
             {detailError ? (
@@ -498,7 +498,7 @@ function VideoDetailContent({ id }: { id?: string }) {
   }
 
   return (
-    <AppShell mobileAutoHideNav>
+    <AppShell mobileAutoHideNav navMode="compact">
       <div className="vd-page">
         {/* Ambient 背景层：用海报作模糊底色，叠加渐变过渡到页面背景 */}
         <div

@@ -1,10 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ComponentType, type MouseEvent } from "react";
 import { NavLink, useLocation } from "react-router";
 import {
+  House,
   LogOut,
   X,
 } from "lucide-react";
 import { useAuth } from "@/admin/AuthContext";
+import { SearchPanel } from "@/components/SearchPanel";
 import { UploadIcon } from "@/components/icons/UploadIcon";
 import { VideoIcon } from "@/components/icons/VideoIcon";
 import { requestShortsFullscreenOnEntry } from "@/shorts/fullscreen";
@@ -43,6 +45,10 @@ function AdminIcon({ size = 16 }: { size?: number }) {
   );
 }
 
+function HomeIcon({ size = 16 }: { size?: number }) {
+  return <House size={size} strokeWidth={2.2} aria-hidden="true" />;
+}
+
 // Font Awesome Pro 7.3.1 by Fonticons, Inc. — commercial license: https://fontawesome.com/license
 function MobileMenuIcon({ size = 26 }: { size?: number }) {
   return (
@@ -67,6 +73,14 @@ function MobileMenuIcon({ size = 26 }: { size?: number }) {
   );
 }
 
+type NavItem = {
+  to: string;
+  label: string;
+  icon: ComponentType<{ size?: number }>;
+};
+
+const homeNavItem = { to: "/", label: "首页", icon: HomeIcon };
+
 const navItems = [
   { to: "/shorts", label: "短视频", icon: ShortVideoIcon },
   { to: "/list", label: "视频", icon: VideoIcon },
@@ -75,15 +89,57 @@ const navItems = [
 const uploadNavItem = { to: "/upload", label: "上传", icon: UploadIcon };
 const adminNavItem = { to: "/admin", label: "后台", icon: AdminIcon };
 
-export function MainNav() {
+/** 首页、短视频、视频是公共入口；上传和后台只对管理员显示。 */
+function useNavItems(): { primary: NavItem[]; admin: NavItem[] } {
+  const { isAdmin } = useAuth();
+  return {
+    primary: [homeNavItem, ...navItems],
+    admin: isAdmin ? [uploadNavItem, adminNavItem] : [],
+  };
+}
+
+/**
+ * Shared link behaviour: entering shorts from home replaces the history entry
+ * because the shorts page prepares home as its own return target, and a plain
+ * primary click asks for fullscreen while the user gesture is still active.
+ */
+function useNavLinkProps(onNavigate?: () => void) {
+  const location = useLocation();
+  return (to: string) => ({
+    to,
+    end: to === "/",
+    replace: to === "/shorts" && location.pathname === "/",
+    onClick: (event: MouseEvent<HTMLAnchorElement>) => {
+      onNavigate?.();
+      if (to === "/shorts" && event.button === 0 &&
+        !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
+        void requestShortsFullscreenOnEntry();
+      }
+    },
+  });
+}
+
+/** 搜索结果留在当前列表页；其他页面统一回到首页展示结果。 */
+function searchNavigationPath(pathname: string): string {
+  return pathname === "/list" ? "/list" : "/";
+}
+
+type MainNavProps = {
+  searchLoading?: boolean;
+};
+
+export function MainNav({ searchLoading = false }: MainNavProps) {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLUListElement | null>(null);
   const toggleRef = useRef<HTMLButtonElement | null>(null);
+  const searchRef = useRef<HTMLDivElement | null>(null);
   const { status, isAdmin, logout } = useAuth();
+  const { primary, admin } = useNavItems();
+  const linkProps = useNavLinkProps(() => setOpen(false));
   useNativeBackHandler(open, () => setOpen(false), "menu");
 
-  const items = isAdmin ? [...navItems, uploadNavItem, adminNavItem] : navItems;
+  const items = [...primary, ...admin];
 
   const handleLogout = async () => {
     try {
@@ -111,33 +167,62 @@ export function MainNav() {
     };
   }, [open]);
 
+  // "/" focuses the global search, matching the convention of most media sites.
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "/" || event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target;
+      if (target instanceof HTMLElement &&
+        (target.isContentEditable || /^(?:INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) {
+        return;
+      }
+      const input = searchRef.current?.querySelector("input");
+      if (!input || input.offsetParent === null) return;
+      event.preventDefault();
+      input.focus();
+      input.select();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   return (
     <nav className={`main-nav ${open ? "is-open" : ""}`}>
-      <div className="container main-nav__inner">
-        <NavLink to="/" className="main-nav__logo">
+      <div className="main-nav__inner">
+        <NavLink to="/" className="main-nav__logo" aria-label="91 首页">
           <span className="main-nav__logo-mark">
             <img src="/icon.png" alt="" className="main-nav__logo-img" />
           </span>
         </NavLink>
 
+        <div ref={searchRef} className="main-nav__search">
+          <SearchPanel
+            navigationPath={searchNavigationPath(location.pathname)}
+            variant="uiverse"
+            className="search-panel--header"
+            loading={searchLoading}
+          />
+          <kbd className="main-nav__search-hint" aria-hidden="true">/</kbd>
+        </div>
+
+        <div className="main-nav__actions">
+          {isAdmin && (
+            <NavLink to="/upload" className="main-nav__action">
+              <UploadIcon size={15} />
+              <span>上传</span>
+            </NavLink>
+          )}
+        </div>
+
         <ul ref={menuRef} className="main-nav__list" role="menubar">
           {items.map(({ to, label, icon: Icon }) => (
             <li key={to} role="none">
               <NavLink
-                to={to}
-                // 短视频页会准备首页作为返回落点，避免从首页进入时留下两个首页。
-                replace={to === "/shorts" && location.pathname === "/"}
+                {...linkProps(to)}
                 role="menuitem"
                 className={({ isActive }) =>
                   `main-nav__link ${isActive ? "is-active" : ""}`
                 }
-                onClick={(event) => {
-                  setOpen(false);
-                  if (to === "/shorts" && event.button === 0 &&
-                    !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
-                    void requestShortsFullscreenOnEntry();
-                  }
-                }}
               >
                 <Icon size={16} />
                 {label}
@@ -169,5 +254,52 @@ export function MainNav() {
         </button>
       </div>
     </nav>
+  );
+}
+
+export function SideNav() {
+  const { status, isAdmin, logout } = useAuth();
+  const { primary, admin } = useNavItems();
+  const linkProps = useNavLinkProps();
+
+  const renderItem = ({ to, label, icon: Icon }: NavItem) => (
+    <li key={to}>
+      <NavLink
+        {...linkProps(to)}
+        className={({ isActive }) => `side-nav__link ${isActive ? "is-active" : ""}`}
+        title={label}
+      >
+        <span className="side-nav__icon"><Icon size={17} /></span>
+        <span className="side-nav__label">{label}</span>
+      </NavLink>
+    </li>
+  );
+
+  return (
+    <aside className="side-nav" aria-label="主导航">
+      <ul className="side-nav__list">{primary.map(renderItem)}</ul>
+
+      {admin.length > 0 && (
+        <>
+          <div className="side-nav__divider" role="presentation" />
+          <p className="side-nav__heading">管理</p>
+          <ul className="side-nav__list">{admin.map(renderItem)}</ul>
+        </>
+      )}
+
+      {status === "authed" && !isAdmin && (
+        <div className="side-nav__footer">
+          <button
+            type="button"
+            className="side-nav__link"
+            onClick={() => { void logout().catch(() => undefined); }}
+            title="退出"
+          >
+            <span className="side-nav__icon"><LogOut size={17} /></span>
+            <span className="side-nav__label">退出</span>
+          </button>
+        </div>
+      )}
+    </aside>
   );
 }

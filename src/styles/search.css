@@ -14,7 +14,7 @@
   bottom: 0;
   width: 100%;
   height: 2px;
-  background: linear-gradient(90deg, transparent, var(--accent), transparent) no-repeat;
+  background: linear-gradient(90deg, transparent, var(--brand), transparent) no-repeat;
   background-size: 35% 100%;
   background-position: -55% 0;
   opacity: 0;
@@ -34,7 +34,7 @@
 @media (prefers-reduced-motion: reduce) {
   .search-panel[data-searching]::before {
     animation: none;
-    background: var(--accent);
+    background: var(--brand);
   }
 }
 
@@ -43,18 +43,16 @@
   gap: var(--space-2);
   flex-wrap: nowrap;
   padding: 4px;
-  background: var(--glass-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--bg-surface);
   border: 1px solid var(--border-default);
-  border-radius: 0;
-  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .search-panel__form:focus-within {
   border-color: var(--border-accent);
-  box-shadow: var(--shadow-selected);
+  box-shadow: var(--ring);
 }
 
 .search-panel__input-wrapper {
@@ -74,7 +72,7 @@
 }
 
 .search-panel__form:focus-within .search-panel__search-icon {
-  color: var(--accent);
+  color: var(--text-strong);
 }
 
 .search-panel__input {
@@ -85,7 +83,7 @@
   border: 0;
   background: transparent;
   color: var(--text-strong);
-  font-size: var(--font-md);
+  font-size: var(--font-base);
 }
 
 .search-panel__input::placeholder {
@@ -102,21 +100,19 @@
   padding: 0 var(--space-5);
   background: var(--accent);
   color: var(--text-on-accent);
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   font-weight: var(--weight-semibold);
-  font-size: var(--font-md);
+  font-size: var(--font-sm);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  box-shadow: var(--shadow-sm);
-  transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition: background var(--transition-fast), transform var(--transition-fast);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .search-panel__submit:hover {
-    filter: brightness(1.05);
-    box-shadow: var(--shadow-sm);
+    background: var(--accent-hover);
   }
 }
 
@@ -128,15 +124,14 @@
   display: none;
 }
 
-/* From uiverse.io by @satyamchaudharydev */
-/* removing default style of button */
+/* Compact pill search: submit icon, field, and a clear button that appears
+ * only while there is text to clear. */
 .search-panel--uiverse button {
   border: none;
   background: none;
   color: var(--text-muted);
 }
 
-/* styling of whole input container */
 .search-panel--uiverse {
   --width-of-input: min(100%, 360px);
   --height-of-input: 40px;
@@ -147,8 +142,10 @@
   display: flex;
   align-items: center;
   padding-inline: 0.8em;
-  border-radius: 0;
+  border-radius: var(--radius-pill);
   background: var(--input-bg, var(--bg-surface));
+  overflow: hidden;
+  transition: background var(--transition-fast);
 }
 
 .search-panel--uiverse.search-panel--public {
@@ -160,7 +157,27 @@
   border: 1px solid var(--border-default);
 }
 
-/* styling of Input */
+/* 顶部栏全局搜索 */
+.search-panel--uiverse.search-panel--header {
+  --width-of-input: 100%;
+  --input-bg: var(--bg-hover);
+  margin-top: 0;
+  padding-inline: 0.9em 0.6em;
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
+  transition: background var(--transition-fast), box-shadow var(--transition-normal);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .search-panel--uiverse.search-panel--header:hover {
+    --input-bg: var(--bg-active);
+  }
+}
+
+.search-panel--uiverse.search-panel--header:focus-within {
+  --input-bg: var(--bg-surface);
+  box-shadow: inset 0 0 0 1px var(--border-accent), var(--ring);
+}
+
 .search-panel--uiverse .search-panel__uiverse-input {
   font-size: 0.9rem;
   background-color: transparent;
@@ -169,70 +186,121 @@
   padding-inline: 0.5em;
   padding-block: 0.7em;
   border: none;
+  color: var(--text-strong);
+}
+
+.search-panel--uiverse .search-panel__uiverse-input::placeholder {
+  color: var(--text-faint);
 }
 
 .search-panel--uiverse .search-panel__uiverse-input:focus {
   outline: none;
 }
 
-/* styling of close button */
-/* == you can click the close button to remove text == */
+.search-panel--uiverse .search-panel__uiverse-submit {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  transition: color var(--transition-fast);
+}
+
+.search-panel--uiverse:focus-within .search-panel__uiverse-submit {
+  color: var(--text-strong);
+}
+
+/* 清空按钮只在输入了内容时出现 */
 .search-panel--uiverse .search-panel__reset {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 26px;
+  height: 26px;
   border: none;
+  border-radius: 50%;
   background: none;
   opacity: 0;
   visibility: hidden;
+  transition: opacity var(--transition-fast), background var(--transition-fast);
 }
 
-/* close button shown when typing */
 .search-panel--uiverse .search-panel__uiverse-input:not(:placeholder-shown) ~ .search-panel__reset {
   opacity: 1;
   visibility: visible;
 }
 
-/* sizing svg icons */
+@media (hover: hover) and (pointer: fine) {
+  .search-panel--uiverse .search-panel__reset:hover {
+    background: var(--bg-hover);
+    color: var(--text-strong);
+  }
+}
+
 .search-panel--uiverse svg {
   width: 17px;
-  margin-top: 3px;
+}
+
+.search-panel--uiverse .search-panel__reset svg {
+  width: 15px;
 }
 
 /* ----- Tag cloud ----- */
 .tag-cloud-container {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  column-gap: var(--space-2);
-  margin-top: var(--space-3);
+  gap: 8px;
   width: 100%;
   min-height: 24px;
-  font-size: var(--font-md);
-  line-height: 24px;
-  text-align: center;
+  font-size: var(--font-sm);
+  line-height: 20px;
 }
 
 .tag-cloud__link {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   max-width: 100%;
-  color: var(--text-muted);
-  vertical-align: top;
+  min-height: 30px;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  box-shadow: inset 0 0 0 1px var(--border-default);
+  color: var(--text-default);
+  font-weight: var(--weight-medium);
   overflow-wrap: anywhere;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 4px;
+  transition: color var(--transition-fast), background-color var(--transition-fast),
+    box-shadow var(--transition-fast), transform var(--transition-fast);
   -webkit-tap-highlight-color: transparent;
 }
 
+.tag-cloud__link::before {
+  content: "#";
+  margin-right: 2px;
+  color: var(--text-faint);
+  font-weight: var(--weight-regular);
+}
+
 .tag-cloud__link.is-active {
-  color: var(--accent);
-  text-decoration-line: underline;
+  background-color: var(--accent);
+  box-shadow: none;
+  color: var(--text-on-accent);
+}
+
+.tag-cloud__link.is-active::before {
+  color: inherit;
+  opacity: 0.6;
 }
 
 /* Touch browsers can retain :hover after a tap and while returning in history. */
 @media (hover: hover) and (pointer: fine) {
-  .tag-cloud__link:hover {
-    color: var(--accent);
-    text-decoration-line: underline;
+  .tag-cloud__link:hover:not(.is-active) {
+    background-color: var(--bg-hover);
+    box-shadow: inset 0 0 0 1px var(--border-strong);
+    color: var(--text-strong);
   }
+}
+
+.tag-cloud__link:active {
+  transform: scale(0.97);
 }
 
 .tag-cloud__error {
@@ -246,6 +314,9 @@
 .tag-cloud__retry {
   color: var(--accent);
   font-size: inherit;
+  font-weight: var(--weight-medium);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -269,7 +340,6 @@
     flex-wrap: nowrap;
     gap: 6px;
     padding: 4px;
-    border-radius: 0;
   }
 
   .search-panel__input-wrapper {
@@ -283,7 +353,6 @@
   .search-panel__input {
     height: 36px;
     padding: 0 var(--space-3) 0 34px;
-    font-size: var(--font-base);
   }
 
   .search-panel__submit {
@@ -291,7 +360,6 @@
     width: 36px;
     height: 36px;
     padding: 0;
-    border-radius: 0;
   }
 
   .search-panel__submit-text {
@@ -302,7 +370,16 @@
     display: block;
   }
 
+  .search-panel--uiverse.search-panel--header {
+    --height-of-input: 38px;
+  }
+
   .tag-cloud-container {
-    font-size: var(--font-base);
+    gap: 6px;
+  }
+
+  .tag-cloud__link {
+    min-height: 28px;
+    padding: 4px 11px;
   }
 }

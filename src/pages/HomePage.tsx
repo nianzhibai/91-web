@@ -7,7 +7,6 @@ import { HomeFeedTabs } from "@/components/HomeFeedTabs";
 import { InfiniteFeedStatus } from "@/components/InfiniteFeedStatus";
 import { ListingLoadError } from "@/components/ListingLoadError";
 import { PromoStrip } from "@/components/PromoStrip";
-import { SearchPanel } from "@/components/SearchPanel";
 import { SortToolbar } from "@/components/SortToolbar";
 import { TagCloud } from "@/components/TagCloud";
 import { VideoGrid } from "@/components/VideoGrid";
@@ -153,32 +152,24 @@ export default function HomePage() {
   );
 
   return (
-    <AppShell mobileAutoHideNav>
-      <div className="container page-section home-discovery-section">
-        <PromoStrip />
-        <SearchPanel
-          navigationPath="/"
-          variant="uiverse"
-          placeholder=""
-          className="search-panel--public search-panel--transparent"
-          loading={homeFeed.initialLoading}
-        />
-        <TagCloud linkBasePath="/" />
-      </div>
-
+    <AppShell mobileAutoHideNav searchLoading={homeFeed.initialLoading}>
       <div className="container page-section home-primary-section">
-        {hasActiveFilter ? (
-          <SortToolbar
-            sort={searchSort}
-            sortDisabled={homeFeed.initialLoading}
-            onSortChange={handleSearchSortChange}
-          />
-        ) : (
-          <HomeFeedTabs
-            feed={feed}
-            onChange={handleFeedChange}
-          />
-        )}
+        <PromoStrip />
+        <div className="listing-toolbar">
+          {hasActiveFilter ? (
+            <SortToolbar
+              sort={searchSort}
+              sortDisabled={homeFeed.initialLoading}
+              onSortChange={handleSearchSortChange}
+            />
+          ) : (
+            <HomeFeedTabs
+              feed={feed}
+              onChange={handleFeedChange}
+            />
+          )}
+          <TagCloud linkBasePath="/" />
+        </div>
 
         {homeFeed.initialLoading && !feedHasContent ? (
           <VideoGrid

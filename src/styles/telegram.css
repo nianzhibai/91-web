@@ -1,7 +1,6 @@
 .admin-main--telegram {
   --tg-content-width: 1200px;
 }
-.admin-main--telegram > .admin-current-page-header,
 .admin-page.telegram-page {
   width: 100%;
   max-width: var(--tg-content-width, 1200px);
@@ -59,8 +58,8 @@
 }
 .tg-panel {
   background: var(--bg-surface);
-  border: 1px solid var(--border-default);
-  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
   padding: 24px;
   min-width: 0;
 }
@@ -107,7 +106,7 @@
   margin-top: 4px;
 }
 .tg-setting-group {
-  border-top: 1px solid var(--border-default);
+  border-top: 1px solid var(--border-subtle);
   padding-top: 20px;
 }
 .tg-setting-group + .tg-setting-group {
@@ -153,18 +152,24 @@
   min-width: 0;
   max-width: 100%;
   width: 100%;
+  min-height: 40px;
   border: 1px solid var(--border-default);
-  border-radius: 6px;
-  padding: 9px 10px;
+  border-radius: 10px;
+  padding: 9px 12px;
   background: var(--bg-sunken);
-  color: inherit;
+  color: var(--text-strong);
   box-sizing: border-box;
   font: inherit;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 .tg-fields :is(input, select):focus-visible,
-.tg-heading select:focus-visible,
+.tg-heading select:focus-visible {
+  outline: none;
+  border-color: var(--border-accent);
+  box-shadow: var(--ring);
+}
 .tg-text-link:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--border-accent);
   outline-offset: 2px;
 }
 .tg-fields :is(input, select):disabled {
@@ -179,9 +184,22 @@
 }
 .tg-heading select {
   width: auto;
-  font-size: 12px;
+  min-height: 32px;
+  padding: 0 16px;
+  border-color: transparent;
+  border-radius: var(--radius-pill);
+  background: var(--bg-hover);
+  color: var(--text-default);
+  font-size: var(--font-sm);
+  font-weight: var(--weight-medium);
   text-align: center;
   text-align-last: center;
+}
+@media (hover: hover) and (pointer: fine) {
+  .tg-heading select:hover {
+    background: var(--bg-active);
+    color: var(--text-strong);
+  }
 }
 .tg-heading select option {
   text-align: left;
@@ -211,13 +229,14 @@
 .tg-status {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
-  margin: 20px 0 16px;
-  padding: 12px;
-  border-radius: 8px;
-  background: var(--bg-sunken);
-  font-size: 15px;
+  margin: 20px 0 18px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: var(--bg-hover);
+  font-size: var(--font-md);
+  font-weight: var(--weight-semibold);
   color: var(--text-muted);
 }
 .tg-status svg {
@@ -225,16 +244,19 @@
 }
 .tg-status.is-connected {
   color: var(--success);
-  background: color-mix(in srgb, var(--success) 7%, var(--bg-surface));
+  background: var(--success-soft);
 }
 .tg-status.is-error {
   color: var(--danger);
+  background: var(--danger-soft);
 }
 .tg-status span {
   margin-inline-start: auto;
   text-align: right;
-  color: var(--text-muted);
-  font-size: 13px;
+  color: var(--text-default);
+  font-family: var(--font-mono);
+  font-size: var(--font-xs);
+  font-weight: var(--weight-regular);
   overflow-wrap: anywhere;
   min-width: 0;
 }
@@ -247,6 +269,12 @@
   display: flex;
   justify-content: space-between;
   gap: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.tg-connection-metrics > div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
 }
 .tg-connection-metrics dt {
   flex-shrink: 0;
@@ -261,9 +289,15 @@
 .tg-metrics {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 16px;
-  margin: 8px 0 0;
-  font-size: 12px;
+  gap: 2px 0;
+  margin: 4px 0 0;
+  font-size: var(--font-xs);
+  font-variant-numeric: tabular-nums;
+}
+.tg-metrics > span + span::before {
+  content: "·";
+  margin: 0 8px;
+  color: var(--text-disabled);
 }
 .tg-error {
   color: var(--danger);
@@ -279,37 +313,62 @@
   grid-template-columns: 40px minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 16px;
-  border-top: 1px solid var(--border-default);
-  padding: 20px 0;
+  border-top: 1px solid var(--border-subtle);
+  padding: 16px 0;
 }
 .tg-job:last-child {
   padding-bottom: 0;
 }
 .tg-job-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   flex-shrink: 0;
   color: var(--text-muted);
-  background: var(--bg-sunken);
-  border-radius: 6px;
-  padding: 4px 9px;
-  font-size: 12px;
+  background: var(--bg-hover);
+  border-radius: var(--radius-pill);
+  padding: 3px 10px;
+  font-size: var(--font-xs);
+  font-weight: var(--weight-medium);
   line-height: 1.5;
+  white-space: nowrap;
+}
+.tg-job-status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
 }
 .tg-job-status--completed {
   color: var(--success);
-  background: color-mix(in srgb, var(--success) 9%, var(--bg-surface));
+  background: var(--success-soft);
 }
 .tg-job-status--failed {
   color: var(--danger);
-  background: color-mix(in srgb, var(--danger) 9%, var(--bg-surface));
+  background: var(--danger-soft);
+}
+/* In-flight work is the state worth noticing at a glance. */
+.tg-job-status:is(.tg-job-status--downloading, .tg-job-status--validating, .tg-job-status--saving) {
+  color: var(--info);
+  background: var(--info-soft);
+}
+.tg-job-status:is(.tg-job-status--downloading, .tg-job-status--validating, .tg-job-status--saving)::before {
+  animation: tg-pulse 1.4s ease-in-out infinite;
+}
+@keyframes tg-pulse {
+  50% {
+    opacity: 0.35;
+  }
 }
 .tg-job-icon {
   display: grid;
   place-items: center;
   width: 40px;
-  height: 44px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-subtle);
-  border-radius: 8px;
+  height: 40px;
+  background: var(--bg-hover);
+  border: 0;
+  border-radius: 10px;
   color: var(--text-muted);
 }
 .tg-job-content {
@@ -317,7 +376,7 @@
 }
 .tg-job-title {
   margin: 0;
-  color: var(--text-default);
+  color: var(--text-strong);
   font-size: 14px;
   font-weight: 500;
   line-height: 1.6;
@@ -435,7 +494,8 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .tg-spin {
+  .tg-spin,
+  .tg-job-status::before {
     animation: none;
   }
 }

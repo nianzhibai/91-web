@@ -22,6 +22,16 @@ const mainNavSource = readFileSync(
   "utf8"
 );
 
+const appShellSource = readFileSync(
+  new URL("../src/components/AppShell.tsx", import.meta.url),
+  "utf8"
+);
+
+const videoDetailPageSource = readFileSync(
+  new URL("../src/pages/VideoDetailPage.tsx", import.meta.url),
+  "utf8"
+);
+
 const adminLayoutSource = readFileSync(
   new URL("../src/admin/AdminLayout.tsx", import.meta.url),
   "utf8"
@@ -143,4 +153,31 @@ test("browser history restores the previous scroll position without animation", 
   const htmlBody = ruleBody(baseCss, "html");
   assert.match(htmlBody, /scroll-behavior\s*:\s*auto/);
   assert.doesNotMatch(htmlBody, /scroll-behavior\s*:\s*smooth/);
+});
+
+test("the header owns global search and keeps list searches on the list page", () => {
+  assert.match(mainNavSource, /<SearchPanel[\s\S]*?navigationPath=\{searchNavigationPath\(location\.pathname\)\}[\s\S]*?className="search-panel--header"[\s\S]*?loading=\{searchLoading\}/);
+  assert.match(mainNavSource, /return pathname === "\/list" \? "\/list" : "\/";/);
+  // "/" focuses search unless the user is already typing somewhere.
+  assert.match(mainNavSource, /event\.key !== "\/"/);
+  assert.match(mainNavSource, /\^\(\?:INPUT\|TEXTAREA\|SELECT\)\$/);
+});
+
+test("the sidebar shares nav items with the mobile menu and collapses to a rail", () => {
+  assert.match(mainNavSource, /export function SideNav\(\)/);
+  assert.match(mainNavSource, /const homeNavItem = \{ to: "\/", label: "首页", icon: HomeIcon \};/);
+  assert.match(mainNavSource, /admin: isAdmin \? \[uploadNavItem, adminNavItem\] : \[\]/);
+  assert.match(appShellSource, /<SideNav \/>/);
+  assert.match(appShellSource, /navMode === "compact" \? "app-shell--compact-nav" : ""/);
+  assert.match(videoDetailPageSource, /<AppShell mobileAutoHideNav navMode="compact">/);
+
+  assert.match(ruleBody(navigationCss, ".side-nav"), /display\s*:\s*none/);
+  assert.match(
+    navigationCss,
+    /@media \(min-width: 992px\) \{[\s\S]*?\.side-nav \{[^}]*position:\s*sticky;[^}]*width:\s*var\(--sidebar-rail-width\)/
+  );
+  assert.match(
+    navigationCss,
+    /@media \(min-width: 1280px\) \{\s*\.app-shell:not\(\.app-shell--compact-nav\) \.side-nav \{[^}]*width:\s*var\(--sidebar-width\)/
+  );
 });

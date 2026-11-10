@@ -282,7 +282,7 @@ test("user create action reuses the crawler-style floating button", () => {
     /right\s*:\s*var\(--space-7\)/,
     /bottom\s*:\s*var\(--space-5\)/,
     /min-height\s*:\s*44px/,
-    /border-radius\s*:\s*12px/,
+    /border-radius\s*:\s*var\(--radius-pill\)/,
     /box-shadow\s*:\s*var\(--shadow-lg\)/,
   ]) {
     assert.match(sharedFab, declaration);
@@ -456,26 +456,26 @@ test("admin tag bulk actions use a fixed floating toolbar", () => {
   assert.doesNotMatch(adminCss, /admin-tags-bulk-actions__mobile-exit/);
 });
 
-test("admin sidebar active item frame only wraps the centered option", () => {
+test("admin sidebar lists full-width icon links from the top", () => {
   const nav = ruleBody(adminCss, ".admin-nav");
   const navIcon = ruleBody(adminCss, ".admin-nav__icon");
   const navLink = ruleBody(adminCss, ".admin-nav__link");
   const activeMarker = ruleBody(adminCss, ".admin-nav__link.is-active::before");
 
-  assert.match(nav, /justify-content\s*:\s*space-evenly/);
-  assert.match(nav, /gap\s*:\s*var\(--space-4\)/);
-  assert.match(navIcon, /display\s*:\s*none/);
-  assert.match(navLink, /align-self\s*:\s*center/);
-  assert.match(navLink, /width\s*:\s*fit-content/);
+  assert.match(nav, /justify-content\s*:\s*flex-start/);
+  assert.match(navIcon, /display\s*:\s*inline-flex/);
+  assert.match(navLink, /align-self\s*:\s*stretch/);
+  assert.match(navLink, /width\s*:\s*100%/);
   assert.match(navLink, /max-width\s*:\s*100%/);
   assert.match(activeMarker, /content\s*:\s*none/);
   assert.match(activeMarker, /display\s*:\s*none/);
+  assert.match(adminLayoutSource, /className="admin-sidebar__brand"/);
 });
 
-test("admin sidebar keeps desktop separators but groups the mobile drawer with labels", () => {
-  assert.match(
-    adminCss,
-    /\.admin-nav__group > \.admin-nav__link \+ \.admin-nav__link::after\s*\{[^}]*content\s*:\s*"";[^}]*height\s*:\s*1px;[^}]*background\s*:\s*var\(--border-subtle\)/s
+test("admin sidebar groups links under labels without item separators", () => {
+  assert.doesNotMatch(
+    adminCss.slice(0, adminCss.indexOf("@media")),
+    /\.admin-nav__group > \.admin-nav__link \+ \.admin-nav__link::after/
   );
   const css = mobileCss();
   const mobileSeparator = ruleBody(css, ".admin-nav__group > .admin-nav__link + .admin-nav__link::after");
@@ -665,10 +665,12 @@ test("desktop video management toolbar keeps its layout and reuses the home sear
   assert.match(sourceNav, /display\s*:\s*grid/);
   assert.match(sourceNav, /grid-template-columns\s*:\s*minmax\(0,\s*1fr\) auto/);
   assert.match(sourceNav, /width\s*:\s*100%/);
-  assert.match(sourceNav, /margin\s*:\s*0\s+0\s+14px/);
+  assert.match(sourceNav, /margin\s*:\s*0\s+0\s+var\(--space-4\)/);
   assert.match(sourceTabs, /overflow-x\s*:\s*auto/);
   assert.match(sourceTabs, /min-width\s*:\s*0/);
-  assert.match(sourceTab, /padding\s*:\s*8px\s+12px\s+11px/);
+  assert.match(sourceTabs, /border-radius\s*:\s*var\(--radius-pill\)/);
+  assert.match(sourceTab, /padding\s*:\s*0\s+14px/);
+  assert.match(ruleBody(adminCss, ".admin-video-source-tab.is-active"), /background\s*:\s*var\(--accent\)/);
   assert.match(blacklistEntry, /white-space\s*:\s*nowrap/);
 });
 
@@ -1363,7 +1365,7 @@ test("mobile tags management does not create horizontal page overflow", () => {
   assert.match(filterTab, /width\s*:\s*auto/);
   assert.match(filterTab, /min-height\s*:\s*0/);
   assert.match(filterTab, /flex-direction\s*:\s*row/);
-  assert.match(filterTab, /padding\s*:\s*6px\s+12px/);
+  assert.match(filterTab, /padding\s*:\s*7px\s+14px/);
   assert.match(filterTab, /text-align\s*:\s*center/);
   assert.match(filterTab, /white-space\s*:\s*nowrap/);
   assert.match(filterTabText, /writing-mode\s*:\s*horizontal-tb/);

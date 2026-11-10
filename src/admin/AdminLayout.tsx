@@ -416,6 +416,15 @@ function AdminLayoutContent() {
         className={`admin-sidebar${mobileNavigationOpen ? " is-open" : ""}`}
         aria-label="后台导航"
       >
+        <NavLink to="/" className="admin-sidebar__brand" title="回到首页">
+          <span className="admin-sidebar__brand-mark">
+            <img className="admin-sidebar__brand-img" src="/icon.png" alt="" />
+          </span>
+          <span className="admin-sidebar__brand-text">
+            <strong>91</strong>
+            <span>管理后台</span>
+          </span>
+        </NavLink>
         <nav className="admin-nav" onClick={() => setMobileNavigationOpen(false)}>
           <div className="admin-nav__group">
             <span className="admin-nav__group-label">资源</span>

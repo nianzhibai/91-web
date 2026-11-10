@@ -1,6 +1,5 @@
 import { memo, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
-import { ThumbsDown, ThumbsUp } from "lucide-react";
 import type { VideoItem } from "@/types";
 import {
   prefetchVideoDetail,
@@ -10,7 +9,7 @@ import { useInViewport } from "@/lib/useInViewport";
 import { useCardPreview } from "@/lib/useCardPreview";
 import { useRouteActivity } from "@/lib/routeActivity";
 import { preloadVideoDetailPage } from "@/lib/videoDetailRoute";
-import { formatVideoDuration } from "@/lib/format";
+import { formatVideoDuration, formatViewCount } from "@/lib/format";
 import { isVideoReturnPath, routeToPath } from "@/lib/videoReturnPath";
 import { createVideoDetailNavigationState } from "@/lib/videoListingBackground";
 import { PreviewVideo } from "./PreviewVideo";
@@ -104,6 +103,7 @@ export const VideoCard = memo(function VideoCard({
             src={video.thumbnail}
             eager={eager}
             highPriority={highPriority}
+            backdrop
           />
 
           {previewEnabled && shouldRenderPreview && (
@@ -168,19 +168,21 @@ export const VideoCard = memo(function VideoCard({
         </Link>
 
         <div className="video-meta">
-          <span className="video-meta__date" title={video.publishedAt}>
-            添加时间: {video.publishedAt}
-          </span>
+          {video.author && (
+            <span className="video-meta__author" title={video.author}>
+              {video.author}
+            </span>
+          )}
           <div className="video-meta__row">
-            <span className="video-meta__views">热度: {video.views}</span>
-            <span className="video-meta__reaction" aria-label={`赞 ${video.likes ?? 0}`}>
-              <ThumbsUp size={11} fill="currentColor" strokeWidth={1} aria-hidden="true" />
-              {video.likes ?? 0}
+            <span className="video-meta__views">{formatViewCount(video.views)} 次观看</span>
+            <span className="video-meta__date" title={`添加于 ${video.publishedAt}`}>
+              {video.publishedAt}
             </span>
-            <span className="video-meta__reaction" aria-label={`踩 ${video.dislikes ?? 0}`}>
-              <ThumbsDown size={11} fill="currentColor" strokeWidth={1} aria-hidden="true" />
-              {video.dislikes ?? 0}
-            </span>
+            {(video.likes ?? 0) > 0 && (
+              <span className="video-meta__reaction" aria-label={`赞 ${video.likes}`}>
+                {formatViewCount(video.likes ?? 0)} 赞
+              </span>
+            )}
           </div>
         </div>
       </div>

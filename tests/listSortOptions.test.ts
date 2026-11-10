@@ -48,17 +48,14 @@ test("list page sort toolbar only exposes active sort options", () => {
 });
 
 test("listing page keeps the public discovery layout and empty semantics", () => {
-  assert.match(
-    listingPageSource,
-    /<SearchPanel[\s\S]*?variant="uiverse"[\s\S]*?placeholder=""[\s\S]*?className="search-panel--public search-panel--transparent"[\s\S]*?\/>/
-  );
-  assert.match(listingPageSource, /className="container page-section listing-discovery-section"/);
+  // Search lives in the shared header; the page only reports its loading state.
+  assert.doesNotMatch(listingPageSource, /<SearchPanel/);
+  assert.match(listingPageSource, /<AppShell searchLoading=\{listing\.initialLoading\}>/);
   assert.match(listingPageSource, /className="container page-section listing-primary-section"/);
+  assert.match(listingPageSource, /className="listing-toolbar"[\s\S]*?<SortToolbar[\s\S]*?<TagCloud \/>/);
   assert.match(listingPageSource, /variant=\{hasActiveFilter \? "no-results" : "empty"\}/);
   assert.match(listingPageSource, /text=\{hasActiveFilter \? "未查询到" : "当前库中没有视频"\}/);
 
-  const discoverySection = ruleBody(layoutCss, ".listing-discovery-section");
-  assert.match(discoverySection, /padding-bottom\s*:\s*var\(--space-2\)/);
   const listingEmptyState = ruleBody(layoutCss, ".admin-empty-state.listing-empty-state");
   assert.match(listingEmptyState, /min-height\s*:\s*clamp\(360px,\s*58vh,\s*620px\)/);
 });

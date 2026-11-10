@@ -1,6 +1,6 @@
 import { CalendarDays, Clock3, Eye } from "lucide-react";
 import type { VideoDetail } from "@/types";
-import { formatCount } from "@/lib/format";
+import { formatCount, formatVideoDuration } from "@/lib/format";
 
 type Props = {
   video: VideoDetail;
@@ -16,7 +16,7 @@ type Props = {
  */
 export function VideoMetaHeader({ video }: Props) {
   const source = (video.sourceLabel ?? "").trim();
-  const duration = (video.duration ?? "").trim();
+  const duration = formatVideoDuration((video.duration ?? "").trim());
   const published = (video.publishedAt ?? "").trim();
   const sourceKind = sourceKindFromLabel(source);
 

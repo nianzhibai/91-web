@@ -272,11 +272,16 @@ test("detail loading skeleton matches current desktop video page layout", () => 
   assert.doesNotMatch(detailLoadingSource, /className="vd-skeleton__meta"/);
   assert.match(
     detailCss,
-    /\.vd-skeleton__player\s*\{[^}]*aspect-ratio:\s*16 \/ 9[^}]*border-radius:\s*0/s
+    /\.vd-skeleton__player\s*\{[^}]*aspect-ratio:\s*16 \/ 9[^}]*border-radius:\s*var\(--radius-lg\)/s
   );
   assert.match(
     detailCss,
-    /\.vd-summary\s*\{[^}]*border:\s*1px solid var\(--border-default\)[^}]*border-radius:\s*var\(--radius-md\)/s
+    /\.vd-player-wrap\s*\{[^}]*border-radius:\s*var\(--radius-lg\)/s
+  );
+  // The summary sits directly on the page rather than inside a card.
+  assert.match(
+    detailCss,
+    /\.vd-summary\s*\{[^}]*background:\s*transparent;[^}]*border:\s*0;/s
   );
   assert.match(
     detailCss,

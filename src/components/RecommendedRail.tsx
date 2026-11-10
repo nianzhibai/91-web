@@ -15,7 +15,7 @@ import type {
   VideoCollectionSummary,
   VideoItem,
 } from "@/types";
-import { formatCount } from "@/lib/format";
+import { formatCount, formatVideoDuration } from "@/lib/format";
 import { useInViewport } from "@/lib/useInViewport";
 import { useCardPreview } from "@/lib/useCardPreview";
 import { useLazyVideoCollection } from "@/lib/useLazyVideoCollection";
@@ -484,7 +484,7 @@ function RecommendedItemContent(
             <PreviewLoader onFinish={finishPreviewLoader} />
           )}
           {video.duration && (
-            <span className="vd-rail__duration">{video.duration}</span>
+            <span className="vd-rail__duration">{formatVideoDuration(video.duration)}</span>
           )}
           {current && (
             <span className="vd-rail__current">当前视频</span>

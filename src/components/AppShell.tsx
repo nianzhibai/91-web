@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from "react";
 import { TopBar } from "./TopBar";
-import { MainNav } from "./MainNav";
+import { MainNav, SideNav } from "./MainNav";
 import { SubNav } from "./SubNav";
 import { Footer } from "./Footer";
 import { BackToTop } from "./BackToTop";
@@ -14,13 +14,22 @@ import { useRouteActivity } from "@/lib/routeActivity";
 type Props = {
   children: ReactNode;
   mobileAutoHideNav?: boolean;
+  /** "compact" keeps the sidebar as an icon rail, giving players more width. */
+  navMode?: "full" | "compact";
+  /** Drives the header search progress line while a result set is loading. */
+  searchLoading?: boolean;
 };
 
 const MOBILE_NAV_QUERY = "(max-width: 768px)";
 const SCROLL_DELTA_THRESHOLD = 6;
 const HIDE_AFTER_SCROLL_Y = 56;
 
-export function AppShell({ children, mobileAutoHideNav = false }: Props) {
+export function AppShell({
+  children,
+  mobileAutoHideNav = false,
+  navMode = "full",
+  searchLoading = false,
+}: Props) {
   const scrollRootRef = usePageScrollRoot();
   const routeActive = useRouteActivity();
   const [mobileNavHidden, setMobileNavHidden] = useState(false);
@@ -86,6 +95,7 @@ export function AppShell({ children, mobileAutoHideNav = false }: Props) {
 
   const className = [
     "app-shell",
+    navMode === "compact" ? "app-shell--compact-nav" : "",
     mobileAutoHideNav ? "app-shell--mobile-auto-hide-nav" : "",
     mobileNavHidden ? "is-mobile-nav-hidden" : "",
     backToTopVisible ? "is-back-to-top-visible" : "",
@@ -95,11 +105,16 @@ export function AppShell({ children, mobileAutoHideNav = false }: Props) {
     <div className={className}>
       <div className="app-shell__nav-stack">
         <TopBar />
-        <MainNav />
+        <MainNav searchLoading={searchLoading} />
         <SubNav />
       </div>
-      <main className="app-shell__main">{children}</main>
-      <Footer />
+      <div className="app-shell__body">
+        <SideNav />
+        <div className="app-shell__content">
+          <main className="app-shell__main">{children}</main>
+          <Footer />
+        </div>
+      </div>
       <BackToTop onVisibilityChange={setBackToTopVisible} />
     </div>
   );

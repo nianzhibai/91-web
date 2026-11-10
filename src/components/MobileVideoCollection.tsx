@@ -15,7 +15,7 @@ import type {
   VideoCollectionItem,
   VideoCollectionSummary,
 } from "@/types";
-import { formatCount } from "@/lib/format";
+import { formatCount, formatVideoDuration } from "@/lib/format";
 import { useDocumentScrollLock } from "@/lib/useDocumentScrollLock";
 import { supportsNativeBack } from "@/lib/nativeBack";
 import { useNativeBackHandler } from "@/lib/useNativeBack";
@@ -711,7 +711,7 @@ const CollectionItem = forwardRef<HTMLLIElement, CollectionItemProps>(
             )}
             {video.duration && (
               <span className="vd-collection-item__duration">
-                {video.duration}
+                {formatVideoDuration(video.duration)}
               </span>
             )}
             {current && (

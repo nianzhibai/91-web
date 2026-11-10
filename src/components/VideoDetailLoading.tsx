@@ -3,7 +3,7 @@ import { VideoRailSkeleton } from "./VideoRailSkeleton";
 
 export function VideoDetailLoading({ isAdmin = false }: { isAdmin?: boolean }) {
   return (
-    <AppShell mobileAutoHideNav>
+    <AppShell mobileAutoHideNav navMode="compact">
       <div className="vd-page">
         <div className="vd-ambient" aria-hidden="true" />
         <div className="container vd-page__inner">

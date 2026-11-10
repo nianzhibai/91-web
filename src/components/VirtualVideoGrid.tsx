@@ -39,6 +39,7 @@ const DEFAULT_OVERSCAN_ROWS = 2;
 const ESTIMATED_ROW_HEIGHT = 280;
 const MOBILE_GRID_QUERY = "(max-width: 767px)";
 const TABLET_GRID_QUERY = "(max-width: 991px)";
+const WIDE_GRID_QUERY = "(min-width: 1680px)";
 const TAIL_ROW_HEIGHT = 56;
 const TAIL_ROW_KEY = "video-grid-tail";
 
@@ -62,6 +63,7 @@ function readResponsiveGridColumns(): number {
   return virtualGridColumns({
     mobile: window.matchMedia(MOBILE_GRID_QUERY).matches,
     tablet: window.matchMedia(TABLET_GRID_QUERY).matches,
+    wide: window.matchMedia(WIDE_GRID_QUERY).matches,
   });
 }
 
@@ -72,14 +74,17 @@ function useResponsiveGridColumns(active: boolean): number {
     if (!active) return;
     const mobile = window.matchMedia(MOBILE_GRID_QUERY);
     const tablet = window.matchMedia(TABLET_GRID_QUERY);
+    const wide = window.matchMedia(WIDE_GRID_QUERY);
     const update = () => setColumns(readResponsiveGridColumns());
     mobile.addEventListener("change", update);
     tablet.addEventListener("change", update);
+    wide.addEventListener("change", update);
     // Catch viewport changes that happened while the listing was inactive.
     update();
     return () => {
       mobile.removeEventListener("change", update);
       tablet.removeEventListener("change", update);
+      wide.removeEventListener("change", update);
     };
   }, [active]);
 

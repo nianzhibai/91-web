@@ -35,7 +35,7 @@ test("detail reactions use one visit-scoped mutually exclusive ballot", () => {
   assert.doesNotMatch(actionsSource, /\/api\/video\/.*\/like/);
 });
 
-test("detail like and dislike buttons are visually separated", () => {
+test("detail like and dislike buttons share one segmented pill on wider screens", () => {
   assert.doesNotMatch(actionsSource, /vd-actions__divider/);
   assert.match(
     detailCss,
@@ -43,7 +43,15 @@ test("detail like and dislike buttons are visually separated", () => {
   );
   assert.match(
     detailCss,
-    /\.vd-actions__pill\s*\{[^}]*border:\s*1px solid var\(--border-subtle\)[^}]*border-radius:\s*var\(--radius-sm\)/s
+    /\.vd-actions__pill\s*\{[^}]*border:\s*1px solid transparent[^}]*border-radius:\s*var\(--radius-pill\)/s
+  );
+  assert.match(
+    detailCss,
+    /@media \(min-width:\s*481px\)\s*\{\s*\.vd-actions__group\s*\{[^}]*gap:\s*0;[^}]*border-radius:\s*var\(--radius-pill\)/s
+  );
+  assert.match(
+    detailCss,
+    /\.vd-actions__group > \.vd-actions__pill:last-child::before\s*\{[^}]*width:\s*1px;[^}]*background:\s*var\(--border-strong\)/s
   );
 });
 
@@ -58,19 +66,20 @@ test("reaction hover feedback excludes touch devices and selected buttons", () =
   );
   assert.match(
     detailCss,
-    /\.vd-actions__pill\.is-active\s*\{[^}]*background:\s*var\(--accent-softer\)[^}]*border-color:\s*var\(--border-accent\)[^}]*color:\s*var\(--accent\)/s
+    /\.vd-actions__pill\.is-active\s*\{[^}]*background:\s*var\(--accent\)[^}]*color:\s*var\(--text-on-accent\)/s
   );
 });
 
-test("desktop share button matches the like button without changing narrow screens", () => {
+test("share and reaction buttons share the same pill surface", () => {
   assert.match(
     detailCss,
-    /@media \(min-width:\s*769px\)\s*\{[\s\S]*?\.vd-actions__share:not\(\.is-success\)\s*\{[^}]*background:\s*rgba\(255, 255, 255, 0\.04\)[^}]*color:\s*var\(--text-default\)/s
+    /\.vd-actions__pill\s*\{[^}]*background:\s*var\(--bg-hover\)/s
   );
   assert.match(
     detailCss,
-    /\.vd-actions__share:not\(\.is-success\):hover:not\(:disabled\)\s*\{[^}]*background:\s*rgba\(255, 255, 255, 0\.06\)[^}]*border-color:\s*var\(--border-strong\)[^}]*color:\s*var\(--text-strong\)/s
+    /\.vd-actions__btn\s*\{[^}]*border-radius:\s*var\(--radius-pill\);[^}]*background:\s*var\(--bg-hover\)/s
   );
+  assert.doesNotMatch(detailCss, /\.vd-actions__share:not\(\.is-success\)/);
 });
 
 test("share success feedback remains independent of hover", () => {

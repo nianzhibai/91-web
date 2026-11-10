@@ -5,6 +5,12 @@ type Props = {
   eager?: boolean;
   highPriority?: boolean;
   enabled?: boolean;
+  /**
+   * Fill letterbox space behind contained artwork with a soft, blurred copy of
+   * the same image. Rendered only once the image is ready, so it reuses the
+   * decoded resource instead of issuing a second request.
+   */
+  backdrop?: boolean;
 };
 
 type ThumbnailState = "loading" | "ready" | "failed";
@@ -14,6 +20,7 @@ export function VideoThumbnail({
   eager = false,
   highPriority = false,
   enabled = true,
+  backdrop = false,
 }: Props) {
   if (!enabled) {
     return (
@@ -34,6 +41,7 @@ export function VideoThumbnail({
       src={src}
       eager={eager}
       highPriority={highPriority}
+      backdrop={backdrop}
     />
   );
 }
@@ -42,6 +50,7 @@ function ThumbnailResource({
   src,
   eager = false,
   highPriority = false,
+  backdrop = false,
 }: Props) {
   const [state, setState] = useState<ThumbnailState>(src ? "loading" : "failed");
   const imageRef = useRef<HTMLImageElement | null>(null);
@@ -85,6 +94,15 @@ function ThumbnailResource({
           decoding="async"
           onLoad={handleLoad}
           onError={handleError}
+        />
+      )}
+      {backdrop && src && state === "ready" && (
+        <img
+          className="thumb-backdrop"
+          src={src}
+          alt=""
+          aria-hidden="true"
+          decoding="async"
         />
       )}
     </>

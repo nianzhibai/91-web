@@ -5,7 +5,6 @@ import { AppShell } from "@/components/AppShell";
 import { InfiniteFeedStatus } from "@/components/InfiniteFeedStatus";
 import { ListingLoadError } from "@/components/ListingLoadError";
 import { PromoStrip } from "@/components/PromoStrip";
-import { SearchPanel } from "@/components/SearchPanel";
 import { SortToolbar } from "@/components/SortToolbar";
 import { TagCloud } from "@/components/TagCloud";
 import { VideoGrid } from "@/components/VideoGrid";
@@ -109,24 +108,17 @@ export default function ListingPage() {
   const { loadingMore } = listing;
 
   return (
-    <AppShell>
-      <div className="container page-section listing-discovery-section">
-        <PromoStrip />
-        <SearchPanel
-          variant="uiverse"
-          placeholder=""
-          className="search-panel--public search-panel--transparent"
-          loading={listing.initialLoading}
-        />
-        <TagCloud />
-      </div>
-
+    <AppShell searchLoading={listing.initialLoading}>
       <div className="container page-section listing-primary-section">
-        <SortToolbar
-          sort={sort}
-          sortDisabled={listing.initialLoading}
-          onSortChange={handleSortChange}
-        />
+        <PromoStrip />
+        <div className="listing-toolbar">
+          <SortToolbar
+            sort={sort}
+            sortDisabled={listing.initialLoading}
+            onSortChange={handleSortChange}
+          />
+          <TagCloud />
+        </div>
 
         {showSkeleton ? (
           <VideoGrid

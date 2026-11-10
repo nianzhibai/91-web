@@ -370,11 +370,11 @@ test("desktop collection stays bounded and positions the current video", () => {
   );
   assert.match(
     stylesSource,
-    /\.vd-rail\s*\{[\s\S]*?--vd-rail-collection-row-height:\s*108\.25px;/
+    /\.vd-rail\s*\{[\s\S]*?--vd-rail-collection-row-height:\s*99\.25px;/
   );
   assert.match(
     stylesSource,
-    /@media \(max-width:\s*1024px\)[\s\S]*?\.vd-rail\s*\{[\s\S]*?--vd-rail-collection-row-height:\s*137\.5px;/
+    /@media \(max-width:\s*1024px\)[\s\S]*?\.vd-rail\s*\{[\s\S]*?--vd-rail-collection-row-height:\s*128\.5px;/
   );
   assert.match(
     railSource,

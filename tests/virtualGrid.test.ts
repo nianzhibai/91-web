@@ -117,6 +117,10 @@ test("grid columns are known before the first browser paint", () => {
     4
   );
   assert.equal(
+    virtualGridColumns({ mobile: false, tablet: false, wide: true }),
+    5
+  );
+  assert.equal(
     virtualGridColumns({ mobile: false, tablet: true }),
     3
   );

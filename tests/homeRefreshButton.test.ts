@@ -137,11 +137,13 @@ test("home and list pages load the shared tag cloud independently from video res
   const tagCloudRetry = ruleBody(searchCss, ".tag-cloud__retry");
   const tagCloudLink = ruleBody(searchCss, ".tag-cloud__link");
   assert.match(tagCloudContainer, /min-height\s*:\s*24px/);
+  assert.match(tagCloudContainer, /flex-wrap\s*:\s*wrap/);
   assert.doesNotMatch(tagCloudContainer, /mask-image|overflow/);
   assert.match(tagCloudError, /flex-wrap\s*:\s*wrap/);
   assert.match(tagCloudRetry, /color\s*:\s*var\(--accent\)/);
   assert.match(tagCloudLink, /overflow-wrap\s*:\s*anywhere/);
-  assert.doesNotMatch(tagCloudLink, /background\s*:|border\s*:/);
+  assert.match(tagCloudLink, /border-radius\s*:\s*var\(--radius-pill\)/);
+  assert.match(ruleBody(searchCss, ".tag-cloud__link.is-active"), /background-color\s*:\s*var\(--accent\)/);
   assert.doesNotMatch(searchCss, /tag-cloud__placeholder|\.tag-cloud-container\[aria-busy/);
 
   const searchForm = ruleBody(searchCss, ".search-panel__form");
@@ -185,10 +187,13 @@ test("home and list pages load the shared tag cloud independently from video res
   assert.match(uiversePanel, /width\s*:\s*var\(--width-of-input\)/);
   assert.match(uiversePanel, /height\s*:\s*var\(--height-of-input\)/);
   assert.match(uiversePanel, /padding-inline\s*:\s*0\.8em/);
-  assert.match(uiversePanel, /border-radius\s*:\s*0/);
-  assert.match(searchForm, /border-radius\s*:\s*0/);
+  assert.match(uiversePanel, /border-radius\s*:\s*var\(--radius-pill\)/);
+  assert.match(searchForm, /border-radius\s*:\s*var\(--radius-md\)/);
   assert.match(uiversePanel, /background\s*:\s*var\(--input-bg, var\(--bg-surface\)\)/);
   assert.doesNotMatch(uiversePanel, /\n\s*border\s*:|box-shadow|backdrop-filter|margin-inline/);
+  const headerPanel = ruleBody(searchCss, ".search-panel--uiverse.search-panel--header");
+  assert.match(headerPanel, /--width-of-input\s*:\s*100%/);
+  assert.match(headerPanel, /margin-top\s*:\s*0/);
   assert.match(publicUiversePanel, /--width-of-input\s*:\s*100%/);
   assert.match(transparentUiversePanel, /--input-bg\s*:\s*transparent/);
   assert.match(transparentUiversePanel, /border\s*:\s*1px solid var\(--border-default\)/);
@@ -217,8 +222,9 @@ test("home and list pages load the shared tag cloud independently from video res
   assert.match(homePageSource, /const searchSort = readListingSort\(searchParams\)/);
   assert.doesNotMatch(homePageSource, /const handleSearch = useCallback/);
   assert.doesNotMatch(homePageSource, /next\.delete\("tag"\)/);
-  assert.match(homePageSource, /<SearchPanel[\s\S]*?navigationPath="\/"[\s\S]*?variant="uiverse"[\s\S]*?placeholder=""[\s\S]*?\/>/);
-  assert.match(homePageSource, /className="search-panel--public search-panel--transparent"/);
+  // Search lives in the shared header; pages only report their loading state.
+  assert.doesNotMatch(homePageSource, /<SearchPanel/);
+  assert.match(homePageSource, /<AppShell mobileAutoHideNav searchLoading=\{homeFeed\.initialLoading\}>/);
   assert.match(homePageSource, /const batchSize = isMobile\s*\? MOBILE_VIDEO_PAGE_SIZE\s*:\s*HOME_DESKTOP_BATCH_SIZE/);
   assert.match(homePageSource, /listingFeedSource\(\{[\s\S]*?q: activeSearchQuery,[\s\S]*?tag: activeTag,[\s\S]*?sort: searchSort,[\s\S]*?pageSize: batchSize/);
   assert.doesNotMatch(homePageSource, /useListingQuery|<Pagination/);
@@ -239,15 +245,16 @@ test("home and list pages load the shared tag cloud independently from video res
   assert.doesNotMatch(homePageSource, /<SectionHeader/);
   assert.doesNotMatch(homePageSource, /随机展示/);
   assert.doesNotMatch(homePageSource, /共 \$\{latest\.length\} 个/);
-  assert.match(homePageSource, /className="container page-section home-discovery-section"/);
+  assert.doesNotMatch(homePageSource, /home-discovery-section/);
   assert.match(homePageSource, /className="container page-section home-primary-section"/);
+  assert.match(homePageSource, /className="listing-toolbar"[\s\S]*?<HomeFeedTabs[\s\S]*?<TagCloud linkBasePath="\/" \/>/);
   assert.match(homePageSource, /className="admin-empty-state admin-empty-state--plain home-empty-state"/);
   assert.doesNotMatch(homePageSource, /className="home-empty"/);
   assert.doesNotMatch(homePageSource, /当前没有可播放视频/);
 
-  const discoverySection = ruleBody(layoutCss, ".home-discovery-section");
+  const toolbar = ruleBody(layoutCss, ".listing-toolbar");
   const primaryHeader = ruleBody(layoutCss, ".home-primary-section .section-header");
-  assert.match(discoverySection, /padding-bottom\s*:\s*var\(--space-2\)/);
+  assert.match(toolbar, /flex-wrap\s*:\s*wrap/);
   assert.match(primaryHeader, /margin-top\s*:\s*var\(--space-2\)/);
 
   assert.doesNotMatch(layoutCss, /\.home-empty\s*\{/);

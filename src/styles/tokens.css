@@ -9,6 +9,8 @@
  *   document.documentElement.setAttribute("data-theme", "dark" | "light")
  *
  * 设计约束：
+ *   - 中性锌灰阶 + 单色主操作色（暗色下为近白，亮色下为近黑），保持界面安静
+ *   - 品牌玫红只用于极少数强调：Logo、进度、实时状态
  *   - 两套主题与选择器预览共用 token，组件使用语义颜色
  *   - 间距 / 圆角 / 字号 / 过渡等"非主题"变量挂在 :root
  * ========================================================= */
@@ -26,18 +28,27 @@
   --space-9: 56px;
 
   /* ----- 圆角 ----- */
-  --radius-xs: 4px;
+  --radius-xs: 6px;
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
-  --radius-xl: 22px;
+  --radius-xl: 20px;
   --radius-pill: 999px;
 
+  /* ----- 字体 ----- */
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI",
+    "PingFang SC", "HarmonyOS Sans SC", "MiSans", "Noto Sans SC", "Noto Sans CJK SC",
+    "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", "Helvetica Neue", Arial,
+    sans-serif;
+  --font-mono:
+    ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
+
   /* ----- 字号 ----- */
-  --font-xs: 11px;
-  --font-sm: 12px;
-  --font-base: 13px;
-  --font-md: 14px;
+  --font-xs: 12px;
+  --font-sm: 13px;
+  --font-base: 14px;
+  --font-md: 15px;
   --font-lg: 16px;
   --font-xl: 18px;
   --font-2xl: 22px;
@@ -49,19 +60,24 @@
   --weight-medium: 500;
   --weight-semibold: 600;
   --weight-bold: 700;
+  --weight-extrabold: 800;
 
   /* ----- 行高 ----- */
-  --line-tight: 1.25;
-  --line-normal: 1.5;
+  --line-tight: 1.3;
+  --line-normal: 1.55;
   --line-relaxed: 1.7;
 
-  /* ----- 容器 ----- */
-  --container-max: 1280px;
-  --container-pad-x: 24px;
+  /* ----- 容器与外壳 ----- */
+  --container-max: 1760px;
+  --container-pad-x: 32px;
+  --header-height: 64px;
+  --sidebar-width: 232px;
+  --sidebar-rail-width: 76px;
 
   /* ----- 过渡 ----- */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
   --duration-fast: 140ms;
   --duration-normal: 220ms;
   --duration-slow: 360ms;
@@ -84,62 +100,70 @@
 .theme-card[data-preview="dark"] .theme-card__preview,
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg-hover: rgba(220, 222, 225, 0.05);
-  --scrollbar-thumb: rgba(220, 222, 225, 0.2);
-  --scrollbar-thumb-hover: rgba(220, 222, 225, 0.34);
+  --bg-hover: rgba(244, 244, 245, 0.06);
+  --bg-active: rgba(244, 244, 245, 0.1);
+  --scrollbar-thumb: rgba(244, 244, 245, 0.16);
+  --scrollbar-thumb-hover: rgba(244, 244, 245, 0.3);
 
-  /* ----- 表面色（三层灰阶，从最深到最浅） ----- */
-  --bg-page: #111214;
-  --bg-surface: #1b1d20;
-  --bg-elevated: #25282c;
-  --bg-sunken: #141619;
-  --bg-skeleton: #30343a;
-  --bg-overlay: rgba(12, 13, 14, 0.68);
+  /* ----- 表面色（从最深到最浅） ----- */
+  --bg-page: #0c0c0e;
+  --bg-surface: #151518;
+  --bg-elevated: #1e1e22;
+  --bg-sunken: #101012;
+  --bg-skeleton: #222227;
+  --bg-overlay: rgba(6, 6, 8, 0.66);
+  --bg-media: #050506;
 
   /* 半透明玻璃 */
-  --glass-nav: rgba(17, 18, 20, 0.96);
-  --glass-card: rgba(27, 29, 32, 0.96);
+  --glass-nav: rgba(12, 12, 14, 0.78);
+  --glass-card: rgba(21, 21, 24, 0.9);
 
   /* ----- 边框 ----- */
-  --border-subtle: rgba(220, 222, 225, 0.07);
-  --border-default: rgba(220, 222, 225, 0.12);
-  --border-strong: rgba(220, 222, 225, 0.22);
-  --border-accent: rgba(225, 228, 232, 0.32);
+  --border-subtle: rgba(244, 244, 245, 0.06);
+  --border-default: rgba(244, 244, 245, 0.1);
+  --border-strong: rgba(244, 244, 245, 0.18);
+  --border-accent: rgba(244, 244, 245, 0.34);
 
   /* ----- 文本 ----- */
-  --text-strong: #f0f1f3;
-  --text-default: #d2d5da;
-  --text-muted: #a4a9b2;
-  --text-faint: #9097a1;
-  --text-disabled: #69717c;
-  --text-on-accent: #202328;
+  --text-strong: #f4f4f5;
+  --text-default: #d4d4d8;
+  --text-muted: #a1a1aa;
+  --text-faint: #8a8a93;
+  --text-disabled: #5c5c64;
+  --text-on-accent: #0c0c0e;
   --text-on-dark: #ffffff;
   --video-link-color: var(--text-strong);
 
-  /* ----- 主色（银白） ----- */
-  --accent: #e1e4e8;
-  --accent-hover: #f0f1f3;
-  --accent-strong: #cbd0d7;
-  --accent-soft: rgba(225, 228, 232, 0.1);
-  --accent-softer: rgba(225, 228, 232, 0.045);
+  /* ----- 主操作色（单色：近白） ----- */
+  --accent: #f4f4f5;
+  --accent-hover: #ffffff;
+  --accent-strong: #e4e4e7;
+  --accent-soft: rgba(244, 244, 245, 0.1);
+  --accent-softer: rgba(244, 244, 245, 0.05);
+
+  /* ----- 品牌色（玫红，少量使用） ----- */
+  --brand: #fb6170;
+  --brand-hover: #ff7a87;
+  --brand-soft: rgba(251, 97, 112, 0.14);
+  --text-on-brand: #ffffff;
 
   /* ----- 状态色 ----- */
-  --success: #89b4a0;
-  --success-soft: rgba(137, 180, 160, 0.1);
-  --warning: #c2aa7e;
-  --warning-soft: rgba(194, 170, 126, 0.1);
-  --danger: #d3999f;
-  --danger-soft: rgba(211, 153, 159, 0.1);
-  --info: #98abc5;
-  --info-soft: rgba(152, 171, 197, 0.1);
+  --success: #5fcf9c;
+  --success-soft: rgba(95, 207, 156, 0.12);
+  --warning: #e8b765;
+  --warning-soft: rgba(232, 183, 101, 0.12);
+  --danger: #f2727f;
+  --danger-soft: rgba(242, 114, 127, 0.12);
+  --info: #7fb0f5;
+  --info-soft: rgba(127, 176, 245, 0.12);
 
   /* ----- 标签来源徽标（深底浅字，降低次要信息的亮度） ----- */
-  --tag-source-user-bg: #20342c;
-  --tag-source-user-fg: #9dc9b2;
-  --tag-source-generated-bg: #362f22;
-  --tag-source-generated-fg: #d5b680;
-  --tag-source-crawler-bg: #302b3e;
-  --tag-source-crawler-fg: #c0aedc;
+  --tag-source-user-bg: #17302a;
+  --tag-source-user-fg: #8fd6b7;
+  --tag-source-generated-bg: #352c1b;
+  --tag-source-generated-fg: #e3c07e;
+  --tag-source-crawler-bg: #2b2640;
+  --tag-source-crawler-fg: #c3b2ef;
 
   /* ----- 网盘品牌色 ----- */
   --drive-quark: #5b8def;
@@ -154,76 +178,85 @@
   --drive-localstorage: #35b88f;
 
   /* ----- 阴影 ----- */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.12);
-  --shadow-md: 0 3px 10px rgba(0, 0, 0, 0.16);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
-  --shadow-xl: 0 12px 36px rgba(0, 0, 0, 0.24);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.32);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.32);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 24px 64px rgba(0, 0, 0, 0.5);
   --shadow-selected: 0 0 0 1px var(--border-accent);
+  --ring: 0 0 0 3px rgba(244, 244, 245, 0.14);
 }
 
 /* =========================================================
  * 亮色
- * 中性白与灰阶层次，按钮和文字保持清晰对比。
+ * 纸白表面与锌灰层次，主操作为近黑。
  * ========================================================= */
 .theme-card[data-preview="light"] .theme-card__preview,
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg-hover: rgba(49, 52, 58, 0.04);
-  --scrollbar-thumb: rgba(49, 52, 58, 0.23);
-  --scrollbar-thumb-hover: rgba(49, 52, 58, 0.38);
+  --bg-hover: rgba(9, 9, 11, 0.045);
+  --bg-active: rgba(9, 9, 11, 0.08);
+  --scrollbar-thumb: rgba(9, 9, 11, 0.18);
+  --scrollbar-thumb-hover: rgba(9, 9, 11, 0.32);
 
   /* ----- 表面色 ----- */
-  --bg-page: #f3f4f6;
+  --bg-page: #f7f7f8;
   --bg-surface: #ffffff;
-  --bg-elevated: #f0f2f5;
-  --bg-sunken: #f6f7f9;
-  --bg-skeleton: #e2e5e9;
-  --bg-overlay: rgba(20, 22, 25, 0.42);
+  --bg-elevated: #f1f1f3;
+  --bg-sunken: #f4f4f5;
+  --bg-skeleton: #e6e6e9;
+  --bg-overlay: rgba(9, 9, 11, 0.4);
+  --bg-media: #0c0c0e;
 
   /* 半透明表面 */
-  --glass-nav: rgba(243, 244, 246, 0.96);
-  --glass-card: rgba(255, 255, 255, 0.96);
+  --glass-nav: rgba(247, 247, 248, 0.8);
+  --glass-card: rgba(255, 255, 255, 0.92);
 
   /* ----- 边框（暗色描边） ----- */
-  --border-subtle: rgba(49, 52, 58, 0.07);
-  --border-default: rgba(49, 52, 58, 0.12);
-  --border-strong: rgba(49, 52, 58, 0.22);
-  --border-accent: rgba(48, 54, 64, 0.3);
+  --border-subtle: rgba(9, 9, 11, 0.06);
+  --border-default: rgba(9, 9, 11, 0.1);
+  --border-strong: rgba(9, 9, 11, 0.18);
+  --border-accent: rgba(9, 9, 11, 0.32);
 
   /* ----- 文本 ----- */
-  --text-strong: #1f2329;
-  --text-default: #414853;
-  --text-muted: #606975;
-  --text-faint: #656e7b;
-  --text-disabled: #a4a9b1;
+  --text-strong: #09090b;
+  --text-default: #3f3f46;
+  --text-muted: #5f5f69;
+  --text-faint: #6e6e78;
+  --text-disabled: #a1a1aa;
   --text-on-accent: #ffffff;
   --text-on-dark: #ffffff;
   --video-link-color: var(--text-strong);
 
-  /* ----- 主色（石墨灰） ----- */
-  --accent: #303640;
-  --accent-hover: #20252d;
-  --accent-strong: #20252d;
-  --accent-soft: rgba(48, 54, 64, 0.075);
-  --accent-softer: rgba(48, 54, 64, 0.035);
+  /* ----- 主操作色（单色：近黑） ----- */
+  --accent: #18181b;
+  --accent-hover: #000000;
+  --accent-strong: #09090b;
+  --accent-soft: rgba(24, 24, 27, 0.07);
+  --accent-softer: rgba(24, 24, 27, 0.035);
+
+  /* ----- 品牌色 ----- */
+  --brand: #e5394c;
+  --brand-hover: #d22a3e;
+  --brand-soft: rgba(229, 57, 76, 0.1);
+  --text-on-brand: #ffffff;
 
   /* ----- 状态色（亮色底下加深） ----- */
-  --success: #24734f;
-  --success-soft: rgba(36, 115, 79, 0.09);
-  --warning: #8c601b;
-  --warning-soft: rgba(140, 96, 27, 0.09);
-  --danger: #b82f49;
-  --danger-soft: rgba(184, 47, 73, 0.09);
-  --info: #3665ab;
-  --info-soft: rgba(54, 101, 171, 0.09);
+  --success: #16794f;
+  --success-soft: rgba(22, 121, 79, 0.09);
+  --warning: #96620f;
+  --warning-soft: rgba(150, 98, 15, 0.09);
+  --danger: #c42a43;
+  --danger-soft: rgba(196, 42, 67, 0.08);
+  --info: #2f62b3;
+  --info-soft: rgba(47, 98, 179, 0.09);
 
   /* ----- 标签来源徽标（浅底深字） ----- */
-  --tag-source-user-bg: #e8f2ed;
-  --tag-source-user-fg: #32664c;
-  --tag-source-generated-bg: #f5eedf;
-  --tag-source-generated-fg: #7e602b;
-  --tag-source-crawler-bg: #eeeaf5;
-  --tag-source-crawler-fg: #6d558f;
+  --tag-source-user-bg: #e6f3ec;
+  --tag-source-user-fg: #2c6448;
+  --tag-source-generated-bg: #f7efdd;
+  --tag-source-generated-fg: #7a5a22;
+  --tag-source-crawler-bg: #eeeaf7;
+  --tag-source-crawler-fg: #66508f;
 
   /* ----- 网盘品牌色（亮色基底下加深） ----- */
   --drive-quark: #4f7be0;
@@ -238,50 +271,10 @@
   --drive-localstorage: #239978;
 
   /* ----- 阴影（轻量中性投影） ----- */
-  --shadow-sm: 0 1px 2px rgba(24, 26, 29, 0.035);
-  --shadow-md: 0 3px 10px rgba(24, 26, 29, 0.05);
-  --shadow-lg: 0 8px 24px rgba(24, 26, 29, 0.065);
-  --shadow-xl: 0 12px 36px rgba(24, 26, 29, 0.08);
+  --shadow-sm: 0 1px 2px rgba(16, 16, 20, 0.05);
+  --shadow-md: 0 4px 14px rgba(16, 16, 20, 0.06);
+  --shadow-lg: 0 12px 32px rgba(16, 16, 20, 0.08);
+  --shadow-xl: 0 24px 56px rgba(16, 16, 20, 0.12);
   --shadow-selected: 0 0 0 1px var(--border-accent);
-}
-
-/* 侧栏状态跟随当前主题，避免浅色主题继承暗色描边。 */
-@media (min-width: 769px) {
-  :root .admin-sidebar__brand {
-    border-color: var(--border-subtle);
-  }
-
-  :root .admin-nav__icon {
-    background: var(--bg-hover);
-    border-color: var(--border-subtle);
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    :root .admin-nav__link:hover {
-      background: var(--bg-hover);
-      border-color: var(--border-default);
-      box-shadow: var(--shadow-sm);
-    }
-
-    :root .admin-nav__link:hover .admin-nav__icon {
-      background: var(--bg-elevated);
-      border-color: var(--border-default);
-    }
-  }
-
-  :root .admin-nav__link.is-active {
-    background: var(--accent-soft);
-    border-color: var(--border-accent);
-    box-shadow: none;
-  }
-
-  :root .admin-nav__link.is-active .admin-nav__title {
-    color: var(--accent);
-  }
-
-  :root .admin-nav__link.is-active .admin-nav__icon {
-    background: var(--accent-soft);
-    border-color: var(--border-accent);
-    color: var(--accent);
-  }
+  --ring: 0 0 0 3px rgba(9, 9, 11, 0.1);
 }

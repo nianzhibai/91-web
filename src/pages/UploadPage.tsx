@@ -225,7 +225,7 @@ export default function UploadPage() {
 
   return (
     <AppShell>
-      <div className="container page-section">
+      <div className="container page-section upload-page">
         <SectionHeader title="上传视频" />
         <form className="upload-panel" onSubmit={handleSubmit}>
           <div className="upload-mode-switch" role="tablist" aria-label="上传方式">
