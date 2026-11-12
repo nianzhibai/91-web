@@ -7,18 +7,18 @@ export type { TagItem } from "@91/client/types";
 export type { CreateRemoteUploadInput, RemoteUploadJob, RemoteUploadState, UploadVideoInput } from "@91/client/admin";
 
 export const {
-  fetchVideoFeed,
-  fetchVideoCollection,
-  fetchVideoCollectionSummary,
-  fetchVideoSubtitles,
-  createVideoShare,
-  consumeVideoShare,
-  fetchSharedVideoSubtitles,
-  recordSharedVideoView,
+  getFeed: fetchVideoFeed,
+  getCollection: fetchVideoCollection,
+  getCollectionSummary: fetchVideoCollectionSummary,
+  listSubtitles: fetchVideoSubtitles,
+  createShare: createVideoShare,
+  claimShare: consumeVideoShare,
+  listSharedSubtitles: fetchSharedVideoSubtitles,
+  recordSharedView: recordSharedVideoView,
   recordView,
-  setVideoLike,
-  setVideoVisitReaction,
-  fetchShortsNext
+  setLike: setVideoLike,
+  setReaction: setVideoVisitReaction,
+  getShorts: fetchShortsNext
 } = client.videos;
 
 // Library management used by the upload, detail and shorts pages.
@@ -34,11 +34,11 @@ export const {
 
 export function fetchVideoDetail(id: string): Promise<VideoDetail | null> {
   if (isVideoDeleted(id)) return Promise.resolve(null);
-  return client.videos.fetchVideoDetail(id).then(detail => isVideoDeleted(id) ? null : detail);
+  return client.videos.get(id).then(detail => isVideoDeleted(id) ? null : detail);
 }
 
 export async function fetchVideoRecommendations(id: string, options: { signal?: AbortSignal } = {}): Promise<VideoItem[]> {
-  return filterDeletedVideos(await client.videos.fetchVideoRecommendations(id, options));
+  return filterDeletedVideos(await client.videos.listRecommendations(id, options));
 }
 
 export async function deleteVideo(id: string, options: { deleteSource?: boolean } = {}) {
@@ -221,7 +221,7 @@ export function fetchTags(): Promise<TagItem[]> {
   if (pendingTags) return pendingTags;
   const requestVersion = tagCacheVersion;
   let request!: Promise<TagItem[]>;
-  request = client.videos.fetchTags()
+  request = client.videos.listTags()
     .then((tags) => {
       if (requestVersion === tagCacheVersion) cachedTags = tags;
       return tags;

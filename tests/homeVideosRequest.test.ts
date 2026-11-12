@@ -11,7 +11,7 @@ import {
 
 // The app consumes feeds through `fetchVideoFeed`; these cover the SDK's legacy
 // listing endpoints directly instead of through unused app re-exports.
-const { fetchHomeVideos, fetchLatestHomeVideos, fetchListing } = client.videos;
+const { listHome: fetchHomeVideos, listLatest: fetchLatestHomeVideos, list: fetchListing } = client.videos;
 
 test("home recommendations send only the requested display count", async (t) => {
   const originalFetch = globalThis.fetch;
