@@ -4489,8 +4489,9 @@ body.admin-mobile-nav-open {
   color: var(--accent);
 }
 
-.admin-video-source-tab.is-active .admin-video-source-tab__glyph.is-all {
-  color: var(--text-strong);
+/* Glyphs use the accent, which is also the active pill's fill; follow its text instead. */
+.admin-video-source-tab.is-active .admin-video-source-tab__glyph {
+  color: currentColor;
 }
 
 .admin-video-source-tab__icon.is-drive[data-kind="quark"] { background: color-mix(in srgb, var(--drive-quark) 16%, var(--bg-surface)); color: var(--drive-quark); }
