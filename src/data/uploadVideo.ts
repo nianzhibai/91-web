@@ -28,7 +28,7 @@ export function uploadVideoWithProgress(
     const abort = () => xhr.abort();
     const settle = () => signal?.removeEventListener("abort", abort);
 
-    xhr.open("POST", client.http.apiURL("/api/upload"));
+    xhr.open("POST", client.admin.uploadURL());
     xhr.withCredentials = true;
     xhr.setRequestHeader("Accept", "application/json");
     xhr.upload.onprogress = (event) => {
