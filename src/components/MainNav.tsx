@@ -5,6 +5,7 @@ import {
   LogOut,
   X,
 } from "lucide-react";
+import brandIconUrl from "@/assets/brand-icon.png";
 import { useAuth } from "@/admin/AuthContext";
 import { SearchPanel } from "@/components/SearchPanel";
 import { UploadIcon } from "@/components/icons/UploadIcon";
@@ -191,7 +192,7 @@ export function MainNav({ searchLoading = false }: MainNavProps) {
       <div className="main-nav__inner">
         <NavLink to="/" className="main-nav__logo" aria-label="91 首页">
           <span className="main-nav__logo-mark">
-            <img src="/icon.png" alt="" className="main-nav__logo-img" />
+            <img src={brandIconUrl} alt="" className="main-nav__logo-img" />
           </span>
         </NavLink>
 

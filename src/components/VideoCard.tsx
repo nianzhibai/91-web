@@ -42,6 +42,7 @@ export const VideoCard = memo(function VideoCard({
   const {
     previewEnabled, previewState, shouldRenderPreview, showPreviewLoader,
     videoRef, startPreview, stopPreview, handlePreviewPlay, finishPreviewLoader,
+    touchPreviewHandlers,
   } = useCardPreview({ id: video.id, src: video.previewSrc, inView, active: routeActive });
 
   function handlePointerEnter(event: React.PointerEvent<HTMLElement>) {
@@ -60,9 +61,9 @@ export const VideoCard = memo(function VideoCard({
     prepareDetailNavigation();
   }
 
-  function handleTouchStart() {
+  function handleTouchStart(event: React.TouchEvent<HTMLElement>) {
     preloadVideoDetailPage();
-    startPreview();
+    touchPreviewHandlers.onTouchStart(event);
   }
 
   function prepareDetailNavigation() {
@@ -95,6 +96,9 @@ export const VideoCard = memo(function VideoCard({
         onPointerLeave={handlePointerLeave}
         onPointerDown={handlePointerDown}
         onTouchStart={handleTouchStart}
+        onTouchMove={touchPreviewHandlers.onTouchMove}
+        onTouchEnd={touchPreviewHandlers.onTouchEnd}
+        onTouchCancel={touchPreviewHandlers.onTouchCancel}
         onFocus={preloadVideoDetailPage}
         onClick={handleDetailNavigation}
       >

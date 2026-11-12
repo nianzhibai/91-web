@@ -1,9 +1,9 @@
 import { ReactNode, useEffect, useState } from "react";
 import { TopBar } from "./TopBar";
 import { MainNav, SideNav } from "./MainNav";
-import { SubNav } from "./SubNav";
 import { Footer } from "./Footer";
 import { BackToTop } from "./BackToTop";
+import { MOBILE_NAV_QUERY } from "@/lib/responsive";
 import {
   pageScrollEventTarget,
   readPageScrollTop,
@@ -20,7 +20,6 @@ type Props = {
   searchLoading?: boolean;
 };
 
-const MOBILE_NAV_QUERY = "(max-width: 768px)";
 const SCROLL_DELTA_THRESHOLD = 6;
 const HIDE_AFTER_SCROLL_Y = 56;
 
@@ -106,7 +105,6 @@ export function AppShell({
       <div className="app-shell__nav-stack">
         <TopBar />
         <MainNav searchLoading={searchLoading} />
-        <SubNav />
       </div>
       <div className="app-shell__body">
         <SideNav />

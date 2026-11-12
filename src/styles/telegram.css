@@ -67,7 +67,7 @@
 .tg-setting-group h3 {
   color: var(--text-strong);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   margin: 0;
 }
 .tg-panel h3 {
@@ -99,7 +99,7 @@
 }
 .tg-enable-row label {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: var(--weight-medium);
   cursor: pointer;
 }
 .tg-enable-row .tg-note {
@@ -111,18 +111,6 @@
 }
 .tg-setting-group + .tg-setting-group {
   margin-top: 24px;
-}
-.tg-text-link {
-  color: var(--text-muted);
-  font-size: 12px;
-  line-height: 1.6;
-  text-decoration: none;
-}
-@media (hover: hover) and (pointer: fine) {
-  .tg-text-link:hover {
-    color: var(--text-strong);
-    text-decoration: underline;
-  }
 }
 .tg-fields {
   display: grid;
@@ -167,10 +155,6 @@
   outline: none;
   border-color: var(--border-accent);
   box-shadow: var(--ring);
-}
-.tg-text-link:focus-visible {
-  outline: 2px solid var(--border-accent);
-  outline-offset: 2px;
 }
 .tg-fields :is(input, select):disabled {
   opacity: 0.55;
@@ -378,7 +362,7 @@
   margin: 0;
   color: var(--text-strong);
   font-size: 14px;
-  font-weight: 500;
+  font-weight: var(--weight-medium);
   line-height: 1.6;
   overflow-wrap: anywhere;
 }
@@ -415,12 +399,7 @@
   font-size: 12px;
 }
 .tg-spin {
-  animation: tg-spin 1s linear infinite;
-}
-@keyframes tg-spin {
-  to {
-    transform: rotate(360deg);
-  }
+  animation: spin 1s linear infinite;
 }
 @media (min-width: 1200px) {
   .tg-overview {
@@ -494,7 +473,6 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .tg-spin,
   .tg-job-status::before {
     animation: none;
   }

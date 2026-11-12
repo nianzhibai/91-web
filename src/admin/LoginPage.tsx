@@ -7,6 +7,7 @@ import { AuthUnavailable } from "./AuthUnavailable";
 import { useToast } from "@/components/ToastContext";
 import * as api from "./api";
 import { PasswordInput } from "./PasswordInput";
+import brandIconUrl from "@/assets/brand-icon.png";
 
 export function LoginPage() {
   const { status, login, refresh } = useAuth();
@@ -94,13 +95,13 @@ export function LoginPage() {
     <div className="admin-login">
       <form className="admin-login__card" onSubmit={handleSubmit}>
         <header className="admin-login__head">
-          <img className="admin-login__logo" src="/icon.png" alt="" />
+          <img className="admin-login__logo" src={brandIconUrl} alt="" />
           <h1 className="admin-login__title">
             {setupRequired ? "创建管理员账号" : "欢迎回来"}
           </h1>
-          <p className="admin-login__subtitle">
-            {setupRequired ? "首次使用，请设置用于管理站点的账号" : "登录以继续浏览你的私人视频库"}
-          </p>
+          {setupRequired && (
+            <p className="admin-login__subtitle">首次使用，请设置用于管理站点的账号</p>
+          )}
         </header>
         <div className="admin-form">
           <div className="admin-form__row">

@@ -2,15 +2,15 @@
    滚动靠原生 scroll-snap 实现 TikTok 式吸附切屏。 */
 
 .shorts-page {
-  /* 播放环境固定使用石墨灰阶，避免亮色主题影响视频上的控件对比。 */
-  --shorts-bg-page: #111214;
-  --shorts-bg-surface: #1b1d20;
-  --shorts-bg-elevated: #25282c;
-  --shorts-bg-hover: #30343a;
-  --shorts-bg-active: #41464e;
-  --shorts-text-muted: #a4a9b2;
-  --shorts-accent: #e1e4e8;
-  --shorts-text-on-accent: #202328;
+  /* 播放环境固定使用暗色锌灰阶，避免亮色主题影响视频上的控件对比。 */
+  --shorts-bg-page: #111113;
+  --shorts-bg-surface: #1c1c1f;
+  --shorts-bg-elevated: #27272a;
+  --shorts-bg-hover: #323238;
+  --shorts-bg-active: #3f3f46;
+  --shorts-text-muted: #a1a1aa;
+  --shorts-accent: #e4e4e7;
+  --shorts-text-on-accent: #18181b;
   --shorts-header-height: calc(64px + env(safe-area-inset-top));
   /* 不能用 fixed 定位：iOS Safari/WebKit 不会合成（渲染）嵌套在 fixed
      祖先里的内联 <video>，视频能解码播放但画面始终不显示（黑屏）。
@@ -219,7 +219,7 @@ body.shorts-document-scroll::before {
   color: rgba(255, 255, 255, 0.65);
   font: inherit;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   line-height: 1;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
   cursor: pointer;
@@ -426,7 +426,7 @@ html.shorts-document-scroll.is-pager-driven body {
 .shorts-page.has-video-transition .shorts-slide__video {
   transform: scale(0.96);
   opacity: 0.5;
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.6s var(--ease-out), opacity 0.6s var(--ease-out);
 }
 
 .shorts-page.has-video-transition
@@ -460,7 +460,7 @@ html.shorts-document-scroll.is-pager-driven body {
 }
 
 .shorts-page .shorts-slide[data-pinch="returning"] :is(.shorts-slide__video, .shorts-slide__poster) {
-  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 200ms var(--ease-out);
 }
 
 /* 清屏保留进度条、拖动时间提示和双击点赞动画，视频节点和播放状态不随界面显隐重新创建。
@@ -525,13 +525,7 @@ html.shorts-document-scroll.is-pager-driven body {
   border-top-color: rgba(255, 255, 255, 0.98);
   border-radius: 50%;
   will-change: transform;
-  animation: shorts-spinner-rotate 0.8s linear infinite;
-}
-
-@keyframes shorts-spinner-rotate {
-  to {
-    transform: rotate(360deg);
-  }
+  animation: spin 0.8s linear infinite;
 }
 
 @media (max-width: 640px) {
@@ -603,7 +597,7 @@ html.shorts-document-scroll.is-pager-driven body {
 .shorts-slide__playback-error-title {
   font-size: 16px;
   line-height: 1.35;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
 }
 
 .shorts-slide__processing {
@@ -636,13 +630,13 @@ html.shorts-document-scroll.is-pager-driven body {
 .shorts-slide__playback-retry {
   min-height: 40px;
   padding: 0 16px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   border: 1px solid rgba(255, 255, 255, 0.24);
   background: rgba(255, 255, 255, 0.14);
   color: #fff;
   font: inherit;
   font-size: 13px;
-  font-weight: 650;
+  font-weight: var(--weight-semibold);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -673,18 +667,18 @@ html.shorts-document-scroll.is-pager-driven body {
   left: 50%;
   transform: translateX(-50%);
   padding: 6px 14px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: rgba(0, 0, 0, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: #fff;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.05em;
   pointer-events: none;
   z-index: 10;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  animation: shorts-rate-in 150ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: shorts-rate-in 150ms var(--ease-out) forwards;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
@@ -718,7 +712,6 @@ html.shorts-document-scroll.is-pager-driven body {
   }
 }
 
-
 /* ---------- 底部标题覆盖层 ---------- */
 .shorts-slide__overlay {
   position: absolute;
@@ -735,7 +728,7 @@ html.shorts-document-scroll.is-pager-driven body {
   margin: 0;
   font-size: 18px;
   line-height: 1.5;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: #fff;
   text-shadow: 0 1px 4px rgb(0 0 0 / 40%);
   white-space: normal;
@@ -784,7 +777,7 @@ html.shorts-document-scroll.is-pager-driven body {
   justify-content: center;
   color: #fff;
   font-size: 10px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: 0;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
   position: relative;
@@ -861,7 +854,7 @@ html.shorts-document-scroll.is-pager-driven body {
 
 /* 点赞激活态 */
 .shorts-slide__action.is-liked {
-  color: #ff4060;
+  color: var(--brand);
   animation: heart-active-bounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
@@ -876,11 +869,11 @@ html.shorts-document-scroll.is-pager-driven body {
   position: absolute;
   /* x/y 通过 inline style 设置，加 translate 让心形以指点为中心 */
   transform: translate(-50%, -50%);
-  color: #ff4060;
+  color: var(--brand);
   pointer-events: none;
   z-index: 18;
   animation: shorts-heart-pop 650ms cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-  filter: drop-shadow(0 4px 16px rgba(255, 64, 96, 0.7));
+  filter: drop-shadow(0 4px 16px color-mix(in srgb, var(--brand) 70%, transparent));
 }
 
 @keyframes shorts-heart-pop {
@@ -931,7 +924,7 @@ html.shorts-document-scroll.is-pager-driven body {
   height: 3px;
   background: rgba(255, 255, 255, 0.22);
   position: relative;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   transition: height 0.15s ease, background-color 0.15s ease;
 }
 
@@ -939,7 +932,7 @@ html.shorts-document-scroll.is-pager-driven body {
 .shorts-slide__progress-track::after {
   content: "";
   position: absolute;
-  right: calc(100% - var(--progress-pct, 0%) - 6px);
+  right: calc((1 - var(--progress, 0)) * 100% - 6px);
   top: 50%;
   transform: translateY(-50%) scale(0);
   width: 12px;
@@ -979,15 +972,17 @@ html.shorts-document-scroll.is-pager-driven body {
   top: 0;
   bottom: 0;
   background: var(--shorts-accent);
-  border-radius: 99px;
-  width: var(--progress-pct, 0%);
-  transition: width 80ms linear;
+  border-radius: var(--radius-pill);
+  width: 100%;
+  transform-origin: left center;
+  transform: scaleX(var(--progress, 0));
+  transition: transform 80ms linear;
 }
 
 .shorts-slide__progress.is-scrubbing .shorts-slide__progress-fill {
   transition: none;
   background: var(--shorts-accent);
-  box-shadow: 0 0 8px rgba(225, 228, 232, 0.3);
+  box-shadow: 0 0 8px rgba(228, 228, 231, 0.3);
 }
 
 .shorts-slide__progress-hover-time {
@@ -1004,7 +999,7 @@ html.shorts-document-scroll.is-pager-driven body {
   background: rgb(0 0 0 / 85%);
   color: #fff;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   font-variant-numeric: tabular-nums;
   line-height: 18px;
   white-space: nowrap;
@@ -1018,19 +1013,19 @@ html.shorts-document-scroll.is-pager-driven body {
   left: 50%;
   transform: translateX(-50%) scale(0.9);
   padding: 6px 14px;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: rgba(0, 0, 0, 0.82);
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: #fff;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   letter-spacing: 0.05em;
   white-space: nowrap;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   pointer-events: none;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-  animation: shorts-tooltip-pop 150ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: shorts-tooltip-pop 150ms var(--ease-out) forwards;
 }
 
 .shorts-slide__progress-time {
@@ -1082,7 +1077,7 @@ html.shorts-document-scroll.is-pager-driven body {
 
 .shorts-slide__hidden-title {
   font-size: 20px;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.02em;
 }
 
@@ -1097,17 +1092,17 @@ html.shorts-document-scroll.is-pager-driven body {
   background: rgba(0, 0, 0, 0.78);
   border: 1px solid rgba(255, 255, 255, 0.15);
   padding: 8px 16px;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   color: #fff;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   display: flex;
   align-items: center;
   gap: 4px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  animation: hud-toast-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: hud-toast-in 0.25s var(--ease-out) forwards;
 }
 
 @keyframes hud-toast-in {
@@ -1129,7 +1124,7 @@ html.shorts-document-scroll.is-pager-driven body {
   background: var(--shorts-bg-elevated);
   color: #fff;
   font-size: 16px;
-  font-weight: 400;
+  font-weight: var(--weight-regular);
   line-height: 22px;
   text-align: center;
   box-shadow: none;
@@ -1201,12 +1196,12 @@ html.shorts-document-scroll.is-pager-driven body {
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.25);
   padding: 8px 20px;
-  border-radius: 99px;
-  font-weight: 500;
+  border-radius: var(--radius-pill);
+  font-weight: var(--weight-medium);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   margin-top: 8px;
-  transition: all 0.2s;
+  transition: color 0.2s, background-color 0.2s, border-color 0.2s;
 }
 
 @media (hover: hover) and (pointer: fine) {

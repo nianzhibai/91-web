@@ -10,6 +10,11 @@ import {
 } from "react";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import {
+  SINGLE_COLUMN_GRID_QUERY,
+  TABLET_GRID_QUERY,
+  WIDE_GRID_QUERY,
+} from "@/lib/responsive";
+import {
   matchingVirtualGridSnapshot,
   shouldLoadMore,
   virtualGridColumns,
@@ -37,9 +42,6 @@ import { VideoCard } from "./VideoCard";
 
 const DEFAULT_OVERSCAN_ROWS = 2;
 const ESTIMATED_ROW_HEIGHT = 280;
-const MOBILE_GRID_QUERY = "(max-width: 767px)";
-const TABLET_GRID_QUERY = "(max-width: 991px)";
-const WIDE_GRID_QUERY = "(min-width: 1680px)";
 const TAIL_ROW_HEIGHT = 56;
 const TAIL_ROW_KEY = "video-grid-tail";
 
@@ -48,7 +50,6 @@ type Props = {
   eagerCount?: number;
   highPriorityCount?: number;
   overscanRows?: number;
-  refreshMode?: "blocking" | "background";
   hasMore?: boolean;
   loadingMore?: boolean;
   prefetchRows?: number;
@@ -61,7 +62,7 @@ type Props = {
 function readResponsiveGridColumns(): number {
   if (typeof window === "undefined") return 4;
   return virtualGridColumns({
-    mobile: window.matchMedia(MOBILE_GRID_QUERY).matches,
+    mobile: window.matchMedia(SINGLE_COLUMN_GRID_QUERY).matches,
     tablet: window.matchMedia(TABLET_GRID_QUERY).matches,
     wide: window.matchMedia(WIDE_GRID_QUERY).matches,
   });
@@ -72,7 +73,7 @@ function useResponsiveGridColumns(active: boolean): number {
 
   useLayoutEffect(() => {
     if (!active) return;
-    const mobile = window.matchMedia(MOBILE_GRID_QUERY);
+    const mobile = window.matchMedia(SINGLE_COLUMN_GRID_QUERY);
     const tablet = window.matchMedia(TABLET_GRID_QUERY);
     const wide = window.matchMedia(WIDE_GRID_QUERY);
     const update = () => setColumns(readResponsiveGridColumns());
@@ -96,7 +97,6 @@ export function VirtualVideoGrid({
   eagerCount = 0,
   highPriorityCount = 0,
   overscanRows = DEFAULT_OVERSCAN_ROWS,
-  refreshMode,
   hasMore = false,
   loadingMore = false,
   prefetchRows = 2,
@@ -301,16 +301,11 @@ export function VirtualVideoGrid({
     videos.length,
   ]);
 
-  const blockingRefresh = refreshMode === "blocking";
-  const backgroundRefresh = refreshMode === "background";
-
   return (
     <div
       ref={containerRef}
-      className={`video-grid-region ${blockingRefresh ? "is-busy" : ""}`}
-      aria-busy={
-        blockingRefresh || backgroundRefresh || loadingMore || undefined
-      }
+      className="video-grid-region"
+      aria-busy={loadingMore || undefined}
     >
       <div
         ref={virtualizer.containerRef}
@@ -357,18 +352,6 @@ export function VirtualVideoGrid({
           );
         })}
       </div>
-      {blockingRefresh && (
-        <div className="video-grid-refresh-overlay" aria-hidden="true" />
-      )}
-      {backgroundRefresh && (
-        <div className="video-grid-background-status" role="status">
-          <span
-            className="video-grid-refresh-overlay__spinner"
-            aria-hidden="true"
-          />
-          <span>正在同步</span>
-        </div>
-      )}
     </div>
   );
 }

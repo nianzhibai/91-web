@@ -26,7 +26,7 @@ test("home, theme, update, and logout are layout-level global actions", () => {
 test("system navigation orders backup, logs, then settings", () => {
   assert.match(
     layoutSource,
-    />系统<[\s\S]*?to="\/admin\/backup"[\s\S]*?to="\/admin\/logs"[\s\S]*?to="\/admin\/settings"/
+    /label: "系统"[\s\S]*?to: "\/admin\/backup"[\s\S]*?to: "\/admin\/logs"[\s\S]*?to: "\/admin\/settings"/
   );
 });
 

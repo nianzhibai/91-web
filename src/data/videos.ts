@@ -5,9 +5,6 @@ import { filterDeletedVideos, isVideoDeleted, markVideoDeleted, subscribeVideoDe
 export * from "@91/client/videos";
 
 export const {
-  fetchHomeVideos,
-  fetchLatestHomeVideos,
-  fetchListing,
   fetchVideoFeed,
   fetchVideoCollection,
   fetchVideoCollectionSummary,

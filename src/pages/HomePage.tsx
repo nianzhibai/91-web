@@ -6,7 +6,6 @@ import { AppShell } from "@/components/AppShell";
 import { HomeFeedTabs } from "@/components/HomeFeedTabs";
 import { InfiniteFeedStatus } from "@/components/InfiniteFeedStatus";
 import { ListingLoadError } from "@/components/ListingLoadError";
-import { PromoStrip } from "@/components/PromoStrip";
 import { SortToolbar } from "@/components/SortToolbar";
 import { TagCloud } from "@/components/TagCloud";
 import { VideoGrid } from "@/components/VideoGrid";
@@ -154,7 +153,6 @@ export default function HomePage() {
   return (
     <AppShell mobileAutoHideNav searchLoading={homeFeed.initialLoading}>
       <div className="container page-section home-primary-section">
-        <PromoStrip />
         <div className="listing-toolbar">
           {hasActiveFilter ? (
             <SortToolbar

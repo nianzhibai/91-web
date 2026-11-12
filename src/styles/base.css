@@ -33,6 +33,7 @@ html {
   *::before,
   *::after {
     animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
 }
@@ -140,7 +141,7 @@ hr {
 
 button:focus-visible,
 a:focus-visible {
-  box-shadow: 0 0 0 2px var(--bg-page), 0 0 0 4px var(--border-accent);
+  box-shadow: var(--focus-ring);
   outline: none;
 }
 

@@ -85,6 +85,10 @@
   --transition-normal: var(--duration-normal) var(--ease-out);
   --transition-slow: var(--duration-slow) var(--ease-out);
 
+  /* ----- 焦点 ----- */
+  /* 字段聚焦用 --ring 光晕；按钮、链接与卡片的键盘焦点用双层描边。 */
+  --focus-ring: 0 0 0 2px var(--bg-page), 0 0 0 4px var(--border-accent);
+
   /* ----- 层级 ----- */
   --z-nav: 50;
   --z-overlay: 100;
@@ -174,6 +178,7 @@
   --drive-yun139: #249bdb;
   --drive-guangyapan: #30c3a8;
   --drive-onedrive: #4cabea;
+  --drive-googledrive: #5b95f5;
   --drive-webdav: #2aa7c8;
   --drive-localstorage: #35b88f;
 
@@ -267,6 +272,7 @@
   --drive-yun139: #1887c4;
   --drive-guangyapan: #229f8b;
   --drive-onedrive: #2f95cf;
+  --drive-googledrive: #3b78e0;
   --drive-webdav: #208aa8;
   --drive-localstorage: #239978;
 

@@ -73,9 +73,10 @@ test("home page refresh button shares back-to-top slot until back-to-top is visi
   const shiftedRefresh = ruleBody(layoutCss, ".app-shell.is-back-to-top-visible .home-refresh");
   const backToTop = ruleBody(layoutCss, ".back-to-top");
   assert.match(refresh, /position\s*:\s*fixed/);
-  assert.match(refresh, /bottom\s*:\s*24px/);
-  assert.match(backToTop, /bottom\s*:\s*24px/);
-  assert.match(shiftedRefresh, /bottom\s*:\s*80px/);
+  assert.match(refresh, /bottom\s*:\s*calc\(24px \+ env\(safe-area-inset-bottom\)\)/);
+  assert.match(backToTop, /bottom\s*:\s*calc\(24px \+ env\(safe-area-inset-bottom\)\)/);
+  assert.match(shiftedRefresh, /--home-refresh-lift\s*:\s*56px/);
+  assert.doesNotMatch(refresh, /transition\s*:[^;]*\bbottom\b/);
   assert.match(refresh, /z-index\s*:\s*var\(--z-overlay\)/);
   assert.doesNotMatch(layoutCss, /\.home-refresh\.is-visible/);
 
@@ -173,7 +174,6 @@ test("home and list pages load the shared tag cloud independently from video res
 
   const uiverseButton = ruleBody(searchCss, ".search-panel--uiverse button");
   const uiversePanel = ruleBody(searchCss, ".search-panel--uiverse");
-  const publicUiversePanel = ruleBody(searchCss, ".search-panel--uiverse.search-panel--public");
   const transparentUiversePanel = ruleBody(searchCss, ".search-panel--uiverse.search-panel--transparent");
   const uiverseInput = ruleBody(searchCss, ".search-panel--uiverse .search-panel__uiverse-input");
   const progressLine = ruleBody(searchCss, ".search-panel::before");
@@ -194,7 +194,6 @@ test("home and list pages load the shared tag cloud independently from video res
   const headerPanel = ruleBody(searchCss, ".search-panel--uiverse.search-panel--header");
   assert.match(headerPanel, /--width-of-input\s*:\s*100%/);
   assert.match(headerPanel, /margin-top\s*:\s*0/);
-  assert.match(publicUiversePanel, /--width-of-input\s*:\s*100%/);
   assert.match(transparentUiversePanel, /--input-bg\s*:\s*transparent/);
   assert.match(transparentUiversePanel, /border\s*:\s*1px solid var\(--border-default\)/);
   assert.match(uiverseInput, /font-size\s*:\s*0\.9rem/);

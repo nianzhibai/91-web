@@ -148,10 +148,6 @@
   transition: background var(--transition-fast);
 }
 
-.search-panel--uiverse.search-panel--public {
-  --width-of-input: 100%;
-}
-
 .search-panel--uiverse.search-panel--transparent {
   --input-bg: transparent;
   border: 1px solid var(--border-default);

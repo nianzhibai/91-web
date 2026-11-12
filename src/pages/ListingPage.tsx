@@ -4,7 +4,6 @@ import { AdminEmptyVisual } from "@/admin/AdminEmptyVisual";
 import { AppShell } from "@/components/AppShell";
 import { InfiniteFeedStatus } from "@/components/InfiniteFeedStatus";
 import { ListingLoadError } from "@/components/ListingLoadError";
-import { PromoStrip } from "@/components/PromoStrip";
 import { SortToolbar } from "@/components/SortToolbar";
 import { TagCloud } from "@/components/TagCloud";
 import { VideoGrid } from "@/components/VideoGrid";
@@ -110,7 +109,6 @@ export default function ListingPage() {
   return (
     <AppShell searchLoading={listing.initialLoading}>
       <div className="container page-section listing-primary-section">
-        <PromoStrip />
         <div className="listing-toolbar">
           <SortToolbar
             sort={sort}
