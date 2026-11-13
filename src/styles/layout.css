@@ -293,6 +293,7 @@
   z-index: var(--z-overlay);
   transform: translateY(calc(var(--home-refresh-lift) * -1)) scale(var(--home-refresh-scale));
   transition: transform var(--duration-normal) var(--ease-out), background-color var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .home-refresh:active:not(:disabled) {

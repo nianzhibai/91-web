@@ -108,6 +108,7 @@
   justify-content: center;
   gap: 6px;
   transition: background var(--transition-fast), transform var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
 }
 
 @media (hover: hover) and (pointer: fine) {

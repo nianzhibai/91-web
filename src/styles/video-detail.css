@@ -381,6 +381,7 @@
   cursor: pointer;
   transition: background-color var(--transition-fast), color var(--transition-fast),
     border-color var(--transition-fast), transform 160ms var(--ease-out);
+    -webkit-tap-highlight-color: transparent;
 }
 
 @media (hover: hover) and (pointer: fine) {
